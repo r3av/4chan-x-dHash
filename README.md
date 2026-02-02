@@ -16,7 +16,7 @@ The dHash feature calculates a perceptual hash for every image thumbnail on the 
 Implementing perceptual hashing introduces new background processing compared to standard 4chan X features.
 
 > [!WARNING]
-> **Performance Impact**: dHash performs additional **calculations** on every thumbnail. While your browser naturally downloads and renders images during normal browsing, dHash adds a layer of background pixel analysis. To ensure a smooth experience, we utilize extensive caching and efficient job queues. However, users on low-end devices should be aware of the increased CPU usage.
+> **Possible Performance Impact**: dHash may perform additional **calculations** on every thumbnail. While your browser naturally downloads and renders images during normal browsing, dHash adds a layer of background pixel analysis. To ensure a smooth experience, we utilize extensive caching and efficient job queues. We also specifically target the thumbnail images to minimize bandwidth usage, as users already download the thumbnail images in a regular viewing experience. However, users on low-end devices should be aware of the increased CPU usage.
 
 This necessity for background processing leads to a key architectural difference:
 
@@ -30,7 +30,11 @@ The native **MD5 Filter** relies entirely on metadata provided by 4chan's server
 
 Because scanning every thread requires hundreds of network requests and CPU operations, a simple synchronous loop (like MD5) would freeze the browser. Therefore, our implementation uses an **asynchronous job queue** with `requestIdleCallback` to process images in the background without blocking the UI. This may cause images to "pop in" briefly before being hidden, unlike the instant-hide of MD5 filters.
 
-## 2. Configuration
+## 2. Configuration and Usage
+To enable, go to the 4chan X settings and enable the Image dHash feature. Settings -> Main -> Filtering -> Check the Image dHash box.
+
+To use, filter any image like you would with MD5 in the dropdown menu in the top right corner of the post, but instead of selecting the MD5 hash option, select the dHash option. Refresh the page and voila, it will have been hidden. Now any future image that is similar to the original image will also be hidden. 
+
 The feature is controlled by the following settings in `Config.coffee`:
 - **Image dHash**: Main toggle to enable/disable the feature.
 - **Show dHash Calculation Progress**: Enables a progress counter in the header (e.g., `dHash: 50/150`).
