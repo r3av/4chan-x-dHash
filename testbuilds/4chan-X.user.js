@@ -13097,7 +13097,7 @@ Settings = (function() {
       $.event('CloseMenu');
       Settings.dialog = dialog = $.el('div', {
         id: 'overlay'
-      }, {innerHTML: "<div id=\"fourchanx-settings\" class=\"dialog\"><nav><div class=\"sections-list\"></div><p class=\"imp-exp-result warning\"></p><div class=\"credits\"><a class=\"export\">Export</a>&nbsp|&nbsp<a class=\"import\">Import</a>&nbsp|&nbsp<a class=\"reset\">Reset Settings</a>&nbsp|&nbsp<input type=\"file\" hidden><a href=\"https://github.com/r3av/4chan-x-dHash\" target=\"_blank\">4chan X with dHash</a>&nbsp|&nbsp<a href=\"https://github.com/ccd0/4chan-x/blob/master/CHANGELOG.md\" target=\"_blank\">" + E(g.VERSION) + "</a>&nbsp|&nbsp<a href=\"https://github.com/r3av/4chan-x-dHash/issues\" target=\"_blank\">Issues</a>&nbsp|&nbsp<a href=\"javascript:;\" class=\"close fa fa-times\" title=\"Close\"></a></div></nav><div class=\"section-container\"><section></section></div></div>"});
+      }, {innerHTML: "<div id=\"fourchanx-settings\" class=\"dialog\"><nav><div class=\"sections-list\"></div><p class=\"imp-exp-result warning\"></p><div class=\"credits\"><a class=\"export\">Export</a>&nbsp|&nbsp<a class=\"import\">Import</a>&nbsp|&nbsp<a class=\"reset\">Reset Settings</a>&nbsp|&nbsp<input type=\"file\" hidden><a href=\"https://github.com/r3av/4chan-x-dHash/tree/feature/dHash-v1\" target=\"_blank\">4chan X with dHash</a>&nbsp|&nbsp<a href=\"https://github.com/r3av/4chan-x-dHash/blob/feature/dHash-v1/CHANGELOG.md\" target=\"_blank\">" + E(g.VERSION) + "</a>&nbsp|&nbsp<a href=\"https://github.com/r3av/4chan-x-dHash/issues\" target=\"_blank\">Issues</a>&nbsp|&nbsp<a href=\"javascript:;\" class=\"close fa fa-times\" title=\"Close\"></a></div></nav><div class=\"section-container\"><section></section></div></div>"});
       $.on($('.export', dialog), 'click', Settings["export"]);
       $.on($('.import', dialog), 'click', Settings["import"]);
       $.on($('.reset', dialog), 'click', Settings.reset);
@@ -27749,7 +27749,7 @@ Main = (function() {
       return $.set(changes, function() {
         var el, ref;
         if ((ref = items['Show Updated Notifications']) != null ? ref : true) {
-          el = $.el('span', {innerHTML: "4chan X with dHash has been updated to <a href=\"https://github.com/ccd0/4chan-x/blob/master/CHANGELOG.md\" target=\"_blank\">version " + E(g.VERSION) + "</a>."});
+          el = $.el('span', {innerHTML: "4chan X with dHash has been updated to <a href=\"https://github.com/r3av/4chan-x-dHash/blob/feature/dHash-v1/CHANGELOG.md\" target=\"_blank\">version " + E(g.VERSION) + "</a>."});
           return new Notice('info', el, 15);
         }
       });
