@@ -12,7 +12,7 @@ The dHash feature calculates a perceptual hash for every image thumbnail on the 
 
 ## 2. Install
 
-Use the userscript in the [/testbuilds/](testbuilds/4chan-X.user.js) directory to install and test it out.
+Use the userscript in the [/testbuilds/](testbuilds/) directory to install and test it out.
 - Backup your current 4chan X installation and settings.
 - Disable your current 4chan X installation.
 - Install the [userscript](testbuilds/4chan-X.user.js) in Tampermonkey or Greasemonkey.
