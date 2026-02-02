@@ -13,11 +13,10 @@ The dHash feature calculates a perceptual hash for every image thumbnail on the 
 ## 2. Install
 
 Use the userscript in the [/testbuilds/](testbuilds/4chan-X.user.js) directory to install and test it out.
-- Be sure to backup your current 4chan X settings before using the userscript.
-- Install the userscript in Tampermonkey or Greasemonkey.
-- Make sure you're in the correct branch [feature/dHash-v1](https://github.com/r3av/4chan-x-dHash/tree/feature/dHash-v1)
+- Backup your current 4chan X installation and settings.
+- Disable your current 4chan X installation.
+- Install the [userscript](testbuilds/4chan-X.user.js) in Tampermonkey or Greasemonkey.
  
-
 ## 3. Configuration and Usage
 To enable, go to the 4chan X settings and enable the Image dHash feature. 
 - 4chan X Settings -> Main -> Filtering -> Check the Image dHash checkbox.
