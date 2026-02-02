@@ -6,6 +6,7 @@ node_modules/
 /tmp/
 /testbuilds/*
 !/testbuilds/4chan-X.user.js
+!/testbuilds/4chan-X.meta.js
 /test.html
 /captchas.html
 /install.json
