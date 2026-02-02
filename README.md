@@ -1,9 +1,9 @@
-# 4chan X v1.14.23.2
+# 4chan X v1.14.23.2 with dHash
 > **Forked from [ccd0/4chan-x](https://github.com/ccd0/4chan-x)**
 
 # dHash Implementation in 4chan X
 
-This document outlines the design and implementation details of the perceptual image hashing (dHash) feature in 4chan X.
+This document outlines the design and implementation details of the perceptual image hashing (dHash) feature in 4chan X. Use the userscript in the /testbuilds/ directory to test the feature. Be sure to backup your current 4chan X settings before using the userscript!
 
 ## 1. Overview
 The dHash feature calculates a perceptual hash for every image thumbnail on the page. This hash allows users to filter duplicate images even if they have slightly different metadata, resolution, or compression, as "similar looking" images produce identical or near-identical hashes.
