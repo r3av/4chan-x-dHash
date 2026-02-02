@@ -9527,7 +9527,7 @@ Filter = (function() {
       }
     },
     load: function(val, key) {
-      var base, base1, boards, err, excludes, file, filter, hide, hl, i, isstring, j, keys, l, len, len1, len2, line, mask, noti, op, ref, ref1, ref2, ref3, ref4, ref5, ref6, regexp, stub, top, type, types, update;
+      var base, base1, boards, err, excludes, file, filter, hide, hl, isstring, j, keys, l, len, len1, len2, line, m, mask, noti, op, ref, ref1, ref2, ref3, ref4, ref5, ref6, regexp, stub, top, type, types, update;
       if (key) {
         Filter.filters[key] = [];
         keys = [key];
@@ -9537,14 +9537,14 @@ Filter = (function() {
         this.filters = $.dict();
         update = false;
       }
-      for (i = 0, len = keys.length; i < len; i++) {
-        key = keys[i];
+      for (j = 0, len = keys.length; j < len; j++) {
+        key = keys[j];
         if (!Conf[key]) {
           continue;
         }
         ref = Conf[key].split('\n');
-        for (j = 0, len1 = ref.length; j < len1; j++) {
-          line = ref[j];
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          line = ref[l];
           if (line[0] === '#') {
             continue;
           }
@@ -9613,8 +9613,8 @@ Filter = (function() {
             noti: noti
           };
           if (key === 'general') {
-            for (l = 0, len2 = types.length; l < len2; l++) {
-              type = types[l];
+            for (m = 0, len2 = types.length; m < len2; m++) {
+              type = types[m];
               ((base = Filter.filters)[type] || (base[type] = [])).push(filter);
             }
           } else {
@@ -9629,7 +9629,7 @@ Filter = (function() {
       }
     },
     parseBoards: function(boardsRaw) {
-      var boardID, boardID2, boards, i, j, len, len1, ref, ref1, ref2, ref3, site, siteFilter, siteID;
+      var boardID, boardID2, boards, j, l, len, len1, ref, ref1, ref2, ref3, site, siteFilter, siteID;
       if (!boardsRaw) {
         return false;
       }
@@ -9639,8 +9639,8 @@ Filter = (function() {
       boards = $.dict();
       siteFilter = '';
       ref = boardsRaw.split(',');
-      for (i = 0, len = ref.length; i < len; i++) {
-        boardID = ref[i];
+      for (j = 0, len = ref.length; j < len; j++) {
+        boardID = ref[j];
         if (indexOf.call(boardID, ':') >= 0) {
           ref1 = boardID.split(':').slice(-2), siteFilter = ref1[0], boardID = ref1[1];
         }
@@ -9650,8 +9650,8 @@ Filter = (function() {
           if (siteID.slice(0, siteFilter.length) === siteFilter) {
             if (boardID === 'nsfw' || boardID === 'sfw') {
               ref3 = (typeof site.sfwBoards === "function" ? site.sfwBoards(boardID === 'sfw') : void 0) || [];
-              for (j = 0, len1 = ref3.length; j < len1; j++) {
-                boardID2 = ref3[j];
+              for (l = 0, len1 = ref3.length; l < len1; l++) {
+                boardID2 = ref3[l];
                 boards[siteID + "/" + boardID2] = true;
               }
             } else {
@@ -9665,7 +9665,7 @@ Filter = (function() {
     },
     parseBoardsMemo: $.dict(),
     test: function(post, hideable) {
-      var board, filter, hide, hl, i, j, key, len, len1, mask, noti, ref, ref1, ref2, site, stub, top, value;
+      var board, filter, hide, hl, j, key, l, len, len1, mask, noti, ref, ref1, ref2, site, stub, top, value;
       if (hideable == null) {
         hideable = true;
       }
@@ -9686,12 +9686,12 @@ Filter = (function() {
       site = post.siteID + "/*";
       for (key in Filter.filters) {
         ref = Filter.values(key, post);
-        for (i = 0, len = ref.length; i < len; i++) {
-          value = ref[i];
+        for (j = 0, len = ref.length; j < len; j++) {
+          value = ref[j];
           ref1 = Filter.filters[key];
-          for (j = 0, len1 = ref1.length; j < len1; j++) {
-            filter = ref1[j];
-            if ((filter.boards && !(filter.boards[board] || filter.boards[site])) || (filter.excludes && (filter.excludes[board] || filter.excludes[site])) || (filter.mask & mask) || (filter.isstring ? filter.regexp !== value : !filter.regexp.test(value))) {
+          for (l = 0, len1 = ref1.length; l < len1; l++) {
+            filter = ref1[l];
+            if ((filter.boards && !(filter.boards[board] || filter.boards[site])) || (filter.excludes && (filter.excludes[board] || filter.excludes[site])) || (filter.mask & mask) || (key === 'dhash' ? Filter.hammingDistance(filter.regexp, value) > 5 : filter.isstring ? filter.regexp !== value : !filter.regexp.test(value))) {
               continue;
             }
             if (filter.hide) {
@@ -9761,17 +9761,17 @@ Filter = (function() {
       });
     },
     catalogParse: function() {
-      var i, item, j, len, len1, page, ref, ref1, ref2;
+      var item, j, l, len, len1, page, ref, ref1, ref2;
       if ((ref = this.status) !== 200 && ref !== 404) {
         new Notice('warning', "Failed to fetch catalog JSON data. " + (this.status ? "Error " + this.statusText + " (" + this.status + ")" : 'Connection Error'), 1);
         return;
       }
       ref1 = this.response;
-      for (i = 0, len = ref1.length; i < len; i++) {
-        page = ref1[i];
+      for (j = 0, len = ref1.length; j < len; j++) {
+        page = ref1[j];
         ref2 = page.threads;
-        for (j = 0, len1 = ref2.length; j < len1; j++) {
-          item = ref2[j];
+        for (l = 0, len1 = ref2.length; l < len1; l++) {
+          item = ref2[l];
           Filter.catalogData[item.no] = item;
         }
       }
@@ -9889,6 +9889,25 @@ Filter = (function() {
         ];
       }
     },
+    hammingDistance: function(h1, h2) {
+      var dist, i, j, ref, v1, v2, x;
+      if (h1.length !== h2.length) {
+        return 64;
+      }
+      dist = 0;
+      for (i = j = 0, ref = h1.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+        v1 = parseInt(h1[i], 16);
+        v2 = parseInt(h2[i], 16);
+        x = v1 ^ v2;
+        while (x) {
+          if (x & 1) {
+            dist++;
+          }
+          x >>= 1;
+        }
+      }
+      return dist;
+    },
     addFilter: function(type, re, cb) {
       if (!$.hasOwn(Config.filter, type)) {
         return;
@@ -9971,11 +9990,11 @@ Filter = (function() {
         return this.close();
       },
       undo: function() {
-        var i, len, post, ref;
+        var j, len, post, ref;
         Filter.removeFilters('MD5', this.filters);
         ref = this.posts;
-        for (i = 0, len = ref.length; i < len; i++) {
-          post = ref[i];
+        for (j = 0, len = ref.length; j < len; j++) {
+          post = ref[j];
           if (post.isReply) {
             PostHiding.show(post);
           } else if (g.VIEW === 'index') {
@@ -9998,7 +10017,7 @@ Filter = (function() {
     },
     menu: {
       init: function() {
-        var div, entry, i, len, ref, ref1, type;
+        var div, entry, j, len, ref, ref1, type;
         if (!(((ref = g.VIEW) === 'index' || ref === 'thread') && Conf['Menu'] && Conf['Filter'])) {
           return;
         }
@@ -10015,8 +10034,8 @@ Filter = (function() {
           subEntries: []
         };
         ref1 = [['Name', 'name'], ['Unique ID', 'uniqueID'], ['Tripcode', 'tripcode'], ['Capcode', 'capcode'], ['Pass Date', 'pass'], ['Email', 'email'], ['Subject', 'subject'], ['Comment', 'comment'], ['Flag', 'flag'], ['Filename', 'filename'], ['Image dimensions', 'dimensions'], ['Filesize', 'filesize'], ['Image MD5', 'MD5'], ['Image dHash', 'dhash']];
-        for (i = 0, len = ref1.length; i < len; i++) {
-          type = ref1[i];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          type = ref1[j];
           entry.subEntries.push(Filter.menu.createSubEntry(type[0], type[1]));
         }
         return Menu.menu.addEntry(entry);

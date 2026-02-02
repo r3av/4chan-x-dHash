@@ -6,7 +6,7 @@ This is a fork of 4chan X with dHash filtering added. The dHash feature calculat
 
 - **This means that if you filter an image with dHash, any future images that are similar to the original image will also be hidden _even if the md5 hash is different_.**
 
-**How it works**: The algorithm resizes the image to a standardized 9x8 grid, converts it to grayscale, and compares pixel brightness gradients. This generates a compact 64-bit "fingerprint" that ignores file format or small visual artifacts.
+**How it works**: The algorithm resizes the image to a standardized 9x8 grid, converts it to grayscale, and compares pixel brightness gradients. This generates a compact 64-bit "fingerprint" that ignores file format or small visual artifacts. **It utilizes fuzzy matching (Hamming distance) to catch images that are extremely close but not byte-for-byte identical.**
 
 **Attribution**: The difference hash (dHash) algorithm used here is based on the work of **Neal Krawetz** (see [Kind of Like That](https://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html)).
 

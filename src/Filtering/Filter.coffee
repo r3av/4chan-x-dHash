@@ -157,7 +157,12 @@ Filter =
             (filter.boards   and !(filter.boards[board]   or filter.boards[site]  )) or
             (filter.excludes and  (filter.excludes[board] or filter.excludes[site])) or
             (filter.mask & mask) or
-            (if filter.isstring then (filter.regexp isnt value) else !filter.regexp.test(value))
+            (if key is 'dhash'
+              Filter.hammingDistance(filter.regexp, value) > 5
+            else if filter.isstring
+              filter.regexp isnt value
+            else
+              !filter.regexp.test(value))
           )
           if filter.hide
             if hideable
@@ -254,6 +259,18 @@ Filter =
         else
           ''
       ).join('\n')]
+
+  hammingDistance: (h1, h2) ->
+    return 64 if h1.length isnt h2.length
+    dist = 0
+    for i in [0...h1.length]
+      v1 = parseInt(h1[i], 16)
+      v2 = parseInt(h2[i], 16)
+      x = v1 ^ v2
+      while x
+        dist++ if x & 1
+        x >>= 1
+    dist
 
   addFilter: (type, re, cb) ->
     return unless $.hasOwn(Config.filter, type)
