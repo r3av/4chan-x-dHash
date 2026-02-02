@@ -8,7 +8,17 @@ This document outlines the design and implementation details of the perceptual i
 ## 1. Overview
 The dHash feature calculates a perceptual hash for every image thumbnail on the page. This hash allows users to filter duplicate images even if they have slightly different metadata, resolution, or compression, as "similar looking" images produce identical or near-identical hashes.
 
+**How it works**: The algorithm resizes the image to a standardized 9x8 grid, converts it to grayscale, and compares pixel brightness gradients. This generates a compact 64-bit "fingerprint" that ignores file format or small visual artifacts.
+
 **Attribution**: The difference hash (dHash) algorithm used here is based on the work of **Neal Krawetz** (see [Kind of Like That](https://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html)).
+
+## Caveats
+Implementing perceptual hashing introduces new background processing compared to standard 4chan X features.
+
+> [!WARNING]
+> **Performance Impact**: dHash performs additional **calculations** on every thumbnail. While your browser naturally downloads and renders images during normal browsing, dHash adds a layer of background pixel analysis. To ensure a smooth experience, we utilize extensive caching and efficient job queues. However, users on low-end devices should be aware of the increased CPU usage.
+
+This necessity for background processing leads to a key architectural difference:
 
 #### Why is dHash implemented differently from MD5?
 The native **MD5 Filter** relies entirely on metadata provided by 4chan's servers (`data-md5` attributes). It is instant and requires zero bandwidth because the browser doesn't need to download the image to know its hash.
