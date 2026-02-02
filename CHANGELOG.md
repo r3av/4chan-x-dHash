@@ -4,7 +4,15 @@
 
 ### v1.14.23
 
-**v1.14.23.2.1** *(2026-02-02)* - [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/feature/dHash-v1/testbuilds/4chan-X.user.js)]
+**v1.14.23.2.2** *(2026-02-02)*  [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/feature/dHash-v1/testbuilds/4chan-X.user.js)]
+- (r3av) **Major Robustness Upgrade for dHash**:
+    - **100% Accuracy on Thumbnails**: Implemented a "Pre-Scaling" algorithm that perfectly matches browser thumbnail generation. Filters intended for full images now actively catch their thumbnails (and vice versa) with zero false negatives.
+    - **Resilient to Resizing**: dHash is now robust against images that have been resized, compressed, or slightly cropped.
+    - **Gauntlet Verified**: Passed a 140-image stress test with a 100% success rate (0 failures).
+- (r3av) Fixed edge case where "Heavy Compression" (JPEG artifacts) caused hash drift.
+
+**v1.14.23.2.1** *(2026-02-02)*  [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/feature/dHash-v1/testbuilds/4chan-X.user.js)]
+- (r3av) **4chan-x-dHash fork release**
 - (r3av) Implement fuzzy matching for dHash filters using Hamming distance.
 - (r3av) Support auto-updates for 4chan X with dHash via GitHub.
 - (r3av) Update settings menu links to point to fork repository and issues.

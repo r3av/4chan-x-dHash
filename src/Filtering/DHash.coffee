@@ -179,7 +179,27 @@ DHash =
   computeHash: (img) ->
     c = $.el 'canvas', width: 9, height: 8
     ctx = c.getContext '2d'
+    
+    # Pre-scale large images to reduce aliasing artifacts.
+    # We normalize to match standard thumbnail geometry (~250px max dimension).
+    # This ensures that hashing a full image yields similar results to hashing its thumbnail.
+    maxDim = 250
+    if img.width > maxDim or img.height > maxDim
+       scale = Math.min(maxDim / img.width, maxDim / img.height)
+       w = Math.floor(img.width * scale)
+       h = Math.floor(img.height * scale)
+       
+       # Create intermediate canvas
+       cv = document.createElement 'canvas'
+       cv.width = w
+       cv.height = h
+       ct = cv.getContext '2d'
+       ct.drawImage img, 0, 0, w, h
+       img = cv
+
+    # Draw final result into the 9x8 grid
     ctx.drawImage img, 0, 0, 9, 8
+      
     data = ctx.getImageData(0, 0, 9, 8).data
     
     hash = ''

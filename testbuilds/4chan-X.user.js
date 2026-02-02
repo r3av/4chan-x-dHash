@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan X with dHash
-// @version      1.14.23.2.1
+// @version      1.14.23.2.2
 // @minGMVer     1.14
 // @minFFVer     26
 // @namespace    4chan-X
@@ -210,7 +210,7 @@ docSet = function() {
 };
 
 g = {
-  VERSION:   '1.14.23.2.1',
+  VERSION:   '1.14.23.2.2',
   NAMESPACE: '4chan X with dHash.',
   sites:     Object.create(null),
   boards:    Object.create(null)
@@ -9460,12 +9460,24 @@ DHash = (function() {
       return DHash.updateStatus();
     },
     computeHash: function(img) {
-      var c, ctx, currentInt, data, hash, hashIndex, i, j, offset, px1, px2, x, y;
+      var c, ct, ctx, currentInt, cv, data, h, hash, hashIndex, i, j, maxDim, offset, px1, px2, scale, w, x, y;
       c = $.el('canvas', {
         width: 9,
         height: 8
       });
       ctx = c.getContext('2d');
+      maxDim = 250;
+      if (img.width > maxDim || img.height > maxDim) {
+        scale = Math.min(maxDim / img.width, maxDim / img.height);
+        w = Math.floor(img.width * scale);
+        h = Math.floor(img.height * scale);
+        cv = document.createElement('canvas');
+        cv.width = w;
+        cv.height = h;
+        ct = cv.getContext('2d');
+        ct.drawImage(img, 0, 0, w, h);
+        img = cv;
+      }
       ctx.drawImage(img, 0, 0, 9, 8);
       data = ctx.getImageData(0, 0, 9, 8).data;
       hash = '';
