@@ -3,8 +3,13 @@
 
 # dHash Implementation in 4chan X
 
-This document outlines the design and implementation details of the perceptual image hashing (dHash) feature in 4chan X. Use the userscript in the /testbuilds/ directory to test the feature. Be sure to backup your current 4chan X settings before using the userscript!
+This document outlines the design and implementation details of the perceptual image hashing (dHash) feature in 4chan X.
 
+Use the userscript in the [/testbuilds/](testbuilds/4chan-X.user.js) directory to install and test it out.
+- Be sure to backup your current 4chan X settings before using the userscript.
+- Install the userscript in Tampermonkey or Greasemonkey.
+- Make sure you're in the correct branch [feature/dHash-v1](https://github.com/r3av/4chan-x-dHash/tree/feature/dHash-v1)
+ 
 ## 1. Overview
 The dHash feature calculates a perceptual hash for every image thumbnail on the page. This hash allows users to filter duplicate images even if they have slightly different metadata, resolution, or compression, as "similar looking" images produce identical or near-identical hashes.
 
@@ -31,9 +36,14 @@ The native **MD5 Filter** relies entirely on metadata provided by 4chan's server
 Because scanning every thread requires hundreds of network requests and CPU operations, a simple synchronous loop (like MD5) would freeze the browser. Therefore, our implementation uses an **asynchronous job queue** with `requestIdleCallback` to process images in the background without blocking the UI. This may cause images to "pop in" briefly before being hidden, unlike the instant-hide of MD5 filters.
 
 ## 2. Configuration and Usage
-To enable, go to the 4chan X settings and enable the Image dHash feature. Settings -> Main -> Filtering -> Check the Image dHash box.
+To enable, go to the 4chan X settings and enable the Image dHash feature. 
+- 4chan X Settings -> Main -> Filtering -> Check the Image dHash checkbox.
 
-To use, filter any image like you would with MD5 in the dropdown menu in the top right corner of the post, but instead of selecting the MD5 hash option, select the dHash option. Refresh the page and voila, it will have been hidden. Now any future image that is similar to the original image will also be hidden. 
+To use, filter any image like you would normally would with MD5, but select the dHash option instead of the MD5 option.
+- Select the dropdown menu in the top right corner of a post.
+- Navigate the **dropdown menu -> Filter -> Image dHash**
+- Image dHash will be saved to the dHash filter list, which can be accessed from 4chan X settings in the top right.
+- Refresh the page to immediately see the results and voila, it will be hidden. **Now any future image that is similar to the original image will also be hidden.**
 
 The feature is controlled by the following settings in `Config.coffee`:
 - **Image dHash**: Main toggle to enable/disable the feature.
