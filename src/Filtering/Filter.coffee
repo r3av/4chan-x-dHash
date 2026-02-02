@@ -8,6 +8,30 @@ Filter =
       $.addClass doc, 'hide-backlinks'
 
     for key of Config.filter
+      $.sync key, Filter.load
+
+    Filter.load()
+
+    if g.VIEW is 'catalog'
+      Filter.catalog()
+    else
+      Callbacks.Post.push
+        name: 'Filter'
+        cb:   @node
+
+  load: (val, key) ->
+    if key
+      Filter.filters[key] = []
+      keys = [key]
+      # If we are updating a specific key, we can try to re-apply filters (if we are running)
+      update = true
+    else
+      keys = Object.keys(Config.filter)
+      @filters = $.dict()
+      update = false
+
+    for key in keys
+      continue unless Conf[key]
       for line in Conf[key].split '\n'
         continue if line[0] is '#'
 
@@ -18,12 +42,12 @@ Filter =
         filter = line.replace regexp[0], ''
 
         # List of the boards this filter applies to.
-        boards = @parseBoards filter.match(/(?:^|;)\s*boards:([^;]+)/)?[1]
+        boards = Filter.parseBoards filter.match(/(?:^|;)\s*boards:([^;]+)/)?[1]
 
         # Boards to exclude from an otherwise global rule.
-        excludes = @parseBoards filter.match(/(?:^|;)\s*exclude:([^;]+)/)?[1]
+        excludes = Filter.parseBoards filter.match(/(?:^|;)\s*exclude:([^;]+)/)?[1]
 
-        if (isstring = (key in ['uniqueID', 'MD5']))
+        if (isstring = (key in ['uniqueID', 'MD5', 'dhash']))
           # MD5 filter will use strings instead of regular expressions.
           regexp = regexp[1]
         else
@@ -84,17 +108,13 @@ Filter =
         filter = {isstring, regexp, boards, excludes, mask, hide, stub, hl, top, noti}
         if key is 'general'
           for type in types
-            (@filters[type] or= []).push filter
+            (Filter.filters[type] or= []).push filter
         else
-          (@filters[key] or= []).push filter
-
-    return unless Object.keys(@filters).length
-    if g.VIEW is 'catalog'
-      Filter.catalog()
-    else
-      Callbacks.Post.push
-        name: 'Filter'
-        cb:   @node
+          (Filter.filters[key] or= []).push filter
+    
+    if update and g.posts
+      g.posts.forEach (post) ->
+        Filter.node.call post
 
   # Parse comma-separated list of boards.
   # Sites can be specified by a beginning part of the site domain followed by a colon.
@@ -222,6 +242,7 @@ Filter =
     dimensions: (post) -> post.files.map((f) -> f.dimensions)
     filesize:   (post) -> post.files.map((f) -> f.size)
     MD5:        (post) -> post.files.map((f) -> f.MD5)
+    dhash:      (post) -> post.files.map((f) -> f.dhash)
 
   values: (key, post) ->
     if $.hasOwn(Filter.valueF, key)
@@ -367,6 +388,7 @@ Filter =
         ['Image dimensions', 'dimensions']
         ['Filesize',         'filesize']
         ['Image MD5',        'MD5']
+        ['Image dHash',      'dhash']
       ]
         # Add a sub entry for each filter type.
         entry.subEntries.push Filter.menu.createSubEntry type[0], type[1]
@@ -383,16 +405,23 @@ Filter =
       return {
         el: el
         open: (post) ->
+          if type is 'dhash'
+            return post.files.some (f) -> f.thumb
           Filter.values(type, post).length
       }
 
     makeFilter: ->
       {type} = @dataset
+      post = Filter.menu.post
       # Convert value -> regexp, unless type is MD5
-      values = Filter.values type, Filter.menu.post
+      values = Filter.values type, post
+      if type is 'dhash' and !values.length
+        new Notice 'warning', 'Wait for image hash to be calculated...', 2
+        return
+
       res = values.map((value) ->
-        re = if type in ['uniqueID', 'MD5'] then value else Filter.escape(value)
-        if type in ['uniqueID', 'MD5']
+        re = if type in ['uniqueID', 'MD5', 'dhash'] then value else Filter.escape(value)
+        if type in ['uniqueID', 'MD5', 'dhash']
           "/#{re}/"
         else
           "/^#{re}$/"

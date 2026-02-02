@@ -4,7 +4,8 @@ node_modules/
 *.db
 *.DS_Store
 /tmp/
-/testbuilds/
+/testbuilds/*
+!/testbuilds/4chan-X.user.js
 /test.html
 /captchas.html
 /install.json
@@ -12,5 +13,5 @@ node_modules/
 /.events
 /.events2
 /dist/
-/builds/*.gz
+/builds/
 /test/

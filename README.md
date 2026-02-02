@@ -1,93 +1,64 @@
-![screenshot](https://ccd0.github.io/4chan-x/img/screenshot.png)
-# 4chan X
-4chan X is a script that adds various features to anonymous imageboards. It was originally developed for 4chan but has no affiliation with it.
+# 4chan X v1.14.23.2
+> **Forked from [ccd0/4chan-x](https://github.com/ccd0/4chan-x)**
 
-It was previously developed by [aeosynth](https://github.com/aeosynth/4chan-x), [Mayhem](https://github.com/MayhemYDG/4chan-x), [ihavenoface](https://github.com/ihavenoface/4chan-x), [Zixaphir](https://github.com/zixaphir/appchan-x), [Seaweed](https://github.com/seaweedchan/4chan-x), and [Spittie](https://github.com/Spittie/4chan-x), with contributions from many others.
+# dHash Implementation in 4chan X
 
-If you're looking for a maintained fork of OneeChan (a style script used in addition to 4chan X), try
-https://github.com/KevinParnell/OneeChan.
+This document outlines the design and implementation details of the perceptual image hashing (dHash) feature in 4chan X.
 
-## Please note
-**Uninstalling**: 4chan X disables the native extension, so if you uninstall 4chan X, you'll need to re-enable it. To do this, click the `[Settings]` link in the top right corner, uncheck "`Disable the native extension`" in the panel that appears, and click the "`Save Settings`" button. If you don't see a "`Save Settings`" button, it may be being hidden by your ad blocker.
+## 1. Overview
+The dHash feature calculates a perceptual hash for every image thumbnail on the page. This hash allows users to filter duplicate images even if they have slightly different metadata, resolution, or compression, as "similar looking" images produce identical or near-identical hashes.
 
-**Private browsing**: By default, 4chan X remembers your last read post in a thread and which posts were made by you, even if you are in private browsing / incognito mode. If you want to turn this off, uncheck the `Remember Last Read Post` and `Remember Your Posts` options in the settings panel. You can clear all 4chan browsing history saved by 4chan X by resetting your settings.
+**Attribution**: The difference hash (dHash) algorithm used here is based on the work of **Neal Krawetz** (see [Kind of Like That](https://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html)).
 
-Use of the "Link Title" feature to fetch titles of Youtube links is subject to Youtube's [Terms of Service](https://www.youtube.com/t/terms) and [Privacy Policy](http://www.google.com/policies/privacy). For more details on what information is sent to Youtube and other sites, and how to turn it off if you don't want the feature, see 4chan X's [privacy documentation](https://github.com/ccd0/4chan-x/wiki/Privacy).
+#### Why is dHash implemented differently from MD5?
+The native **MD5 Filter** relies entirely on metadata provided by 4chan's servers (`data-md5` attributes). It is instant and requires zero bandwidth because the browser doesn't need to download the image to know its hash.
 
-## Install
+**dHash**, however, is not provided by 4chan. To calculate it, the extension must:
+1.  **Download** the image (specifically the **thumbnail** to save bandwidth).
+2.  **Render** the image to a canvas.
+3.  **Process** the pixel data.
 
-### Firefox
-Install [Violentmonkey](https://addons.mozilla.org/en-US/firefox/addon/violentmonkey/), [Tampermonkey](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/), or [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) (issues since v4: [#2526](https://github.com/greasemonkey/greasemonkey/issues/2526), [#2576](https://github.com/greasemonkey/greasemonkey/issues/2574)), then **[click here to install 4chan X](https://www.4chan-x.net/builds/4chan-X.user.js)**.
+Because scanning every thread requires hundreds of network requests and CPU operations, a simple synchronous loop (like MD5) would freeze the browser. Therefore, our implementation uses an **asynchronous job queue** with `requestIdleCallback` to process images in the background without blocking the UI. This may cause images to "pop in" briefly before being hidden, unlike the instant-hide of MD5 filters.
 
-Ports of Greasemonkey are available for [SeaMonkey](https://sourceforge.net/projects/gmport/) and [Pale Moon](https://github.com/janekptacijarabaci/greasemonkey/releases/latest).
+## 2. Configuration
+The feature is controlled by the following settings in `Config.coffee`:
+- **Image dHash**: Main toggle to enable/disable the feature.
+- **Show dHash Calculation Progress**: Enables a progress counter in the header (e.g., `dHash: 50/150`).
+- **Show dHash Status**: Enables a persistent status indicator in the header (`dHash: On`).
+- **dHash Stats**: Enables persistent statistics in the header (`Filtered: 5 | New MD5s: 2`).
+- **Save dHash MD5s**: Automatically adds the MD5 of any image hidden by a dHash filter to the MD5 filter list.
 
-### Chromium
-**Userscript**: Install [Violentmonkey](https://chrome.google.com/webstore/detail/violent-monkey/jinjaccalgkegednnccohejagnlnfdag) or [Tampermonkey](https://tampermonkey.net/), then **[click here to install 4chan X](https://www.4chan-x.net/builds/4chan-X.user.js)**.
+## 3. Core Architecture
+The implementation is split into two main modules: `DHash` (image processing) and `Filter` (applying rules).
 
-**Chrome extension**: 4chan X is also available as a standalone Chrome extension. The Chrome extension has the additional feature of being able to sync your settings and data with other devices via Chrome Sync. But there is an issue when the script updates: Whenever the Chrome extension is updated, until you hard refresh (F5) the tab, 4chan X is unable to save any data (such as posts marked as yours and settings changes). The userscript version above does not have this problem when 4chan X updates, only when Violentmonkey / Tampermonkey is updated. To install as a Chrome extension:
+### 3.1 Image Loading & Preparation (`DHash.coffee`)
+The `DHash` module hooks into the `Callbacks.Post` and `PostsInserted` events. 
+- **Parallel Loading**: When a post is detected, we immediately trigger the image load. We force `crossOrigin = 'anonymous'` to ensure we can read the image data from the canvas without security errors.
+- **Event-Driven**: The hashing process is triggered only *after* the image has fully loaded (`img.onload`). This allows the browser to handle multiple network requests in parallel.
+- **MD5 Caching**: Before preparing an image, we check if its MD5 is already in `DHash.md5Cache`. If found, we reuse the cached dHash instantly.
 
-- **Chromium**, **Vivaldi**: **[Download 4chan X](https://www.4chan-x.net/builds/4chan-X.crx)**, then open `chrome://extensions` and drag the downloaded file onto the page. Alternatively, you can install 4chan X from the **[Chrome store](https://chrome.google.com/webstore/detail/ohnjgmpcibpbafdlkimncjhflgedgpam)**.
-- **Opera**: **[Click to install 4chan X](https://www.4chan-x.net/builds/4chan-X.crx)**, then follow the prompts to activate it in your extension manager.
-- **Chrome**: Install 4chan X from the **[Chrome store](https://chrome.google.com/webstore/detail/ohnjgmpcibpbafdlkimncjhflgedgpam)**.
+### 3.2 Job Queue System
+To prevent freezing the UI when a large thread is loaded, hashing is decoupled from loading.
+- **Queue**: Loaded images are pushed into a generic `DHash.queue`.
+- **Throttling**: The `requestIdleCallback` API (or a `setTimeout` fallback) is used to process the queue. This ensures that hashing only happens when the browser is idle, keeping the scrolling smooth.
+- **Processing**: One image is processed at a time. The `run` loop shifts a task from the queue, computes the hash, and then schedules the next run.
 
-Note: This version of 4chan X does not work with Opera 12. If you need Opera 12 support, try [loadletter's fork](https://github.com/loadletter/4chan-x) instead.
+### 3.3 Hashing Algorithm (`DHash.computeHash`)
+We implement a standard horizontal difference hash (dHash):
+1. **Resize**: Draw the image to a canvas with dimensions 9x8.
+2. **Grayscale**: Convert pixels to grayscale values.
+3. **Compare**: Compare each pixel to its right neighbor. If the left pixel is brighter, the bit is set to 1, otherwise 0.
+4. **Hex Output**: The resulting 64 comparisons form a 64-bit integer, represented as a hexadecimal string.
 
-### Safari
-Install the [Userscripts](https://itunes.apple.com/us/app/userscripts/id1463298887) extension. Enable it by pressing `⌘,`, navigating to the extensions pane and checking `Userscripts` checkbox. Now open the Userscripts editor by clicking on the `</>` button in the taskbar. Then click on the `+` button and select the `New Javascript` option. Replace the default text with the contents of the 4chan X **[script](https://www.4chan-x.net/builds/4chan-X.user.js)**. Finally save it by pressing `⌘s`.
+### 3.4 Filtering (`Filter.coffee` integration)
+- **Hash Assignment**: Once computed, the hash is stored on the file object (`file.dhash`).
+- **Dynamic Updates**: The `Filter` module listens for changes to the configuration using `$.sync`. 
+    - When a filter is added (e.g., via the menu), `Filter.load()` is called.
+    - This triggers a re-scan of **all existing posts** to immediately hide any that match the new rule.
+- **Logic**: `Filter.test()` checks the `dhash` property against user-defined regular expressions or strings.
+- **Auto-MD5 Saving**: If `Save dHash MD5s` is enabled, any post hidden by `Filter.test()` due to a dHash match will have its MD5 added to the `MD5` filter list in the specified format (`/MD5_HASH/`).
 
-### WebKitGTK+ / QtWebKit / QtWebEngine
-Several minimal browsers have support for userscripts and can run 4chan X. Due to the lack of the cross-site GM_* API, and lack of support for userscripts in iframes, not all features will work. You may experience crashes when repeatedly solving the default image-based captchas. You can avoid this problem by enabling `Use Recaptcha v1` in your settings.
-
-- **dwb**: Install the userscripts extension, then save the [script](https://www.4chan-x.net/builds/4chan-X.user.js) to the `$XDG_CONFIG_HOME/dwb/greasemonkey` or `$HOME/.config/dwb/greasemonkey` directory (creating it if necessary):
-
-  ```
-  dwbem -N -i userscripts
-  wget -P ${XDG_CONFIG_HOME:-$HOME/.config}/dwb/greasemonkey https://www.4chan-x.net/builds/4chan-X.user.js
-  ```
-
-- **Midori**: Enable `User addons` in your preferences, under the Extensions tab. In the Privacy tab, check `Enable HTML5 local storage support`. Optionally, if you want 4chan X to be able to open new tabs when you start or reply to a thread, you will need to check `Allow scripts to open popups` under the Behavior tab. Then click the link to the [script](https://www.4chan-x.net/builds/4chan-X.user.js) to install it.
-
-- **Luakit**: Navigate to the [script](https://www.4chan-x.net/builds/4chan-X.user.js), then type the command `:usi` to install it.
-
-- **uzbl**: Install the script from https://github.com/singpolyma/singpolyma/blob/master/uzbl/data/scripts/userscript.sh, enable it in your config file, and then save [4chan X](https://www.4chan-x.net/builds/4chan-X.user.js) to `$XDG_DATA_HOME/uzbl/userscripts` (or `$HOME/.local/share/uzbl/userscripts`). The commands below assume you have run uzbl at least once to create its config file.
-
-  ```
-  wget -P "${XDG_DATA_HOME:-$HOME/.local/share}/uzbl/scripts" https://raw.githubusercontent.com/singpolyma/singpolyma/master/uzbl/data/scripts/userscript.sh
-  chmod +x "${XDG_DATA_HOME:-$HOME/.local/share}/uzbl/scripts/userscript.sh"
-  echo '@on_event LOAD_COMMIT spawn @scripts_dir/userscript.sh document-start' >> "${XDG_CONFIG_HOME:-$HOME/.config}/uzbl/config"
-  echo '@on_event LOAD_FINISH spawn @scripts_dir/userscript.sh document-end'   >> "${XDG_CONFIG_HOME:-$HOME/.config}/uzbl/config"
-  wget -P "${XDG_DATA_HOME:-$HOME/.local/share}/uzbl/userscripts" https://www.4chan-x.net/builds/4chan-X.user.js
-  ```
-
-- **qutebrowser**: Save the [script](https://www.4chan-x.net/builds/4chan-X.user.js) to the `$XDG_DATA_HOME/qutebrowser/greasemonkey` or `$HOME/.local/share/qutebrowser/greasemonkey` directory:
-
-  ```
-  wget -P ${XDG_DATA_HOME:-$HOME/.local/share}/qutebrowser/greasemonkey https://www.4chan-x.net/builds/4chan-X.user.js
-  ```
-
-### MS Edge
-Install [Tampermonkey](https://www.microsoft.com/en-us/store/p/tampermonkey/9nblggh5162s), then **[click here to install 4chan X](https://www.4chan-x.net/builds/4chan-X.user.js)**.
-
-### Other browsers
-4chan X can be used in some browsers that do not support userscripts using [a local proxy](https://github.com/ccd0/4chan-x-proxy). Not all features will work.
-
-## Beta version
-New features and non-urgent bugfixes are released on the beta channel for further testing before they are moved the stable version. Please [report](https://github.com/ccd0/4chan-x/issues?q=is%3Aopen+sort%3Aupdated-desc) any issues you find, and be sure to mention which version you're using. You should back up your settings regularly to prevent them from being lost due to bugs.
-
-To install the **beta** version and get updates whenever there's a new **beta** version:
-- [Install userscript](https://www.4chan-x.net/builds/4chan-X-beta.user.js) (use with Greasemonkey / Violentmonkey / Tampermonkey / JS Blocker / etc.)
-- [Download Chrome extension](https://www.4chan-x.net/builds/4chan-X-beta.crx) (download and drag to `chrome://extensions`)
-
-To install the current **beta** version but get updates from the **stable** channel (for example, if just you want a particular recent feature):
-- [Install userscript](https://github.com/ccd0/4chan-x/raw/beta/builds/4chan-X.user.js)
-- [Download Chrome extension](https://github.com/ccd0/4chan-x/raw/beta/builds/4chan-X.crx)
-
-## Troubleshooting
-If you encounter a bug, try the steps [here](https://github.com/ccd0/4chan-x/blob/master/CONTRIBUTING.md#reporting-bugs), then report it to the [issue tracker](https://github.com/ccd0/4chan-x/issues?q=is%3Aopen+sort%3Aupdated-desc). If the bug seems to be caused by a script update, you can install a old version from the [changelog](https://github.com/ccd0/4chan-x/blob/master/CHANGELOG.md).
-
-## More information
-- [Changelog](https://github.com/ccd0/4chan-x/blob/master/CHANGELOG.md)
-- [Frequently Asked Questions](https://github.com/ccd0/4chan-x/wiki/Frequently-Asked-Questions)
-- [Report Bugs](https://github.com/ccd0/4chan-x/issues)
-- [Contributing](https://github.com/ccd0/4chan-x/blob/master/CONTRIBUTING.md)
-
+## 4. Performance Considerations
+- **Non-Blocking**: Heavy computation stays off the main rendering path via `requestIdleCallback`.
+- **Parallel Network**: Image fetching happens concurrently, maximizing bandwidth usage.
+- **MD5 Cache**: Hashes are computed once per MD5. Duplicate files (e.g., in a Quote Preview or multiple posts with same image) leverage the already computed dHash instantly.

@@ -74,6 +74,12 @@ body.hasDropDownNav{
   display: none !important;
 }
 
+.dhash-pending {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
 /* 4chan style fixes */
 /* overrides 4chan CSS on div.opContainer, div.op */
 :root.sw-yotsuba .opContainer, :root.sw-yotsuba .op {

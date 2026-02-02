@@ -28,6 +28,59 @@ Test =
 
     $.on d, 'keydown', @cb.keydown
 
+    if Conf['Image dHash']
+       dhashLink = $.el 'a',
+         textContent: 'Test dHash'
+       $.on dhashLink, 'click', @dhash.run
+       Header.menu.addEntry
+         el: dhashLink
+
+  dhash:
+    run: ->
+      c.log "Starting dHash tests..."
+      # Solid Black (All 0s)
+      Test.dhash.testHash 'Solid Black'
+      
+      # Gradient (Left > Right) -> All 1s -> F...
+      Test.dhash.testHash 'Gradient'
+      
+      # Let's trust the logic: Left brighter = 1.
+      # Create a canvas gradient manually to test computeHash directly if possible, 
+      # but computeHash takes an img element.
+      # We will rely on image loading which is async.
+      return
+
+    testHash: (name) ->
+      # Create a canvas and draw the test pattern directly
+      # This bypasses Image loading and CSP issues with data URIs
+      c = $.el 'canvas', width: 9, height: 8
+      ctx = c.getContext '2d'
+      
+      if name is 'Solid Black'
+        ctx.fillStyle = '#000000'
+        ctx.fillRect(0, 0, 9, 8)
+        expected = '0000000000000000'
+      else if name is 'Gradient'
+        # Create a gradient that is brighter on the left
+        # dHash sets bit to 1 if Left pixel > Right pixel
+        # So we want Left=Bright, Right=Dark
+        for y in [0...8]
+          for x in [0...9]
+             val = 255 - (x * 25) # 255, 230, 205...
+             ctx.fillStyle = "rgb(#{val},#{val},#{val})"
+             ctx.fillRect(x, y, 1, 1)
+        expected = 'ffffffffffffffff'
+
+      hash = DHash.computeHash(c) # computeHash accepts canvas too (drawImage support)
+      
+      if hash is expected
+        new Notice 'success', "PASS: #{name}", 5
+        c.log "PASS: #{name} - #{hash}"
+      else
+        new Notice 'warning', "FAIL: #{name}. Exp: #{expected}, Got: #{hash}", 20
+        c.log "FAIL: #{name}. Exp: #{expected}, Got: #{hash}"
+
+
   assert: (condition) ->
     unless condition()
       new Notice 'warning', "Assertion failed: #{condition}", 30

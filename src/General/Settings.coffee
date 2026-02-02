@@ -798,47 +798,27 @@ Settings =
         isImage: true
         isVideo: false
         isSpoiler: true
-        tag: 'Loop'
+    $.rmAll @nextElementSibling
     FileInfo.format @value, data, @nextElementSibling
 
-  favicon: ->
-    Favicon.switch()
-    Unread.update() if g.VIEW is 'thread' and Conf['Unread Favicon']
-    img = @nextElementSibling.children
-    f = Favicon
-    for icon, i in [f.SFW, f.unreadSFW, f.unreadSFWY, f.NSFW, f.unreadNSFW, f.unreadNSFWY, f.dead, f.unreadDead, f.unreadDeadY]
-      $.add @nextElementSibling, $.el('img') unless img[i]
-      img[i].src = icon
-    return
-
   togglecss: ->
-    if $('textarea[name=usercss]', $.x 'ancestor::fieldset[1]', @).disabled = $.id('apply-css').disabled = !@checked
-      CustomCSS.rmStyle()
-    else
-      CustomCSS.addStyle()
+    inputs = $$ '[name]', Settings.dialog
+    usercss = inputs.filter((input) -> input.name is 'usercss')[0]
+    apply   = $.id 'apply-css'
+    usercss.disabled = apply.disabled = !@checked
     $.cb.checked.call @
 
   keybinds: (section) ->
     $.extend section, `<%= readHTML('Keybinds.html') %>`
-    $('.warning', section).hidden = Conf['Keybinds']
-
-    tbody  = $ 'tbody', section
+    inputs = $$ 'input', section
     items  = $.dict()
-    inputs = $.dict()
-    for key, arr of Config.hotkeys
-      tr = $.el 'tr',
-        `<%= html('<td>${arr[1]}</td><td><input class="field"></td>') %>`
-      input = $ 'input', tr
-      input.name = key
-      input.spellcheck = false
-      items[key]  = Conf[key]
-      inputs[key] = input
+    for input in inputs
+      items[input.name] = Conf[input.name][0]
       $.on input, 'keydown', Settings.keybind
-      $.add tbody, tr
 
     $.get items, (items) ->
       for key, val of items
-        inputs[key].value = val
+        inputs.filter((input) -> input.name is key)[0].value = val
       return
 
   keybind: (e) ->

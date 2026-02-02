@@ -217,6 +217,35 @@ Config =
         true
         'Show stubs of hidden threads / replies.'
       ]
+      'Image dHash': [
+        true
+        'Enable dHash calculation for images.'
+      ]
+      'Show dHash Calculation Progress': [
+        false
+        'Show dHash calculation progress in the header.'
+        1
+      ]
+      'Show dHash Status': [
+        true
+        'Show dHash On/Off status in the header.'
+        1
+      ]
+      'Save dHash MD5s': [
+        false
+        'Automatically add the MD5 of any image hidden by dHash to the MD5 filter list.'
+        1
+      ]
+      'Hide until dHash': [
+        false
+        'Hide posts with images until the dHash has been calculated and checked (prevents unwanted images from pop-in).'
+        1
+      ]
+      'dHash Stats': [
+        true
+        'Show persistent statistics in the header.'
+        1
+      ]
 
     'Images and Videos':
       'Image Expansion': [
@@ -764,6 +793,7 @@ Config =
     filesize: ''
 
     MD5: ''
+    dhash: ''
 
   sauces: """
     # Known filename formats:
