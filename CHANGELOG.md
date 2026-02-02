@@ -4,6 +4,11 @@
 
 ### v1.14.23
 
+**v1.14.23.2.1** *(2026-02-02)* - [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/feature/dHash-v1/testbuilds/4chan-X.user.js)]
+- (r3av) Implement fuzzy matching for dHash filters using Hamming distance.
+- (r3av) Support auto-updates for 4chan X with dHash via GitHub.
+- (r3av) Update settings menu links to point to fork repository and issues.
+
 **v1.14.23.2** *(2025-12-16)* - [[Userscript](https://raw.githubusercontent.com/ccd0/4chan-x/1.14.23.2/builds/4chan-X-noupdate.user.js)] [[Chrome extension](https://raw.githubusercontent.com/ccd0/4chan-x/1.14.23.2/builds/4chan-X-noupdate.crx)]
 - Update for change in how 'Verification not required' message is displayed.
 
