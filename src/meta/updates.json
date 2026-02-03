@@ -3,7 +3,7 @@
     "<%= meta.appidGecko %>": {
       "updates": [
         {
-          "version": "<%= readJSON('/version.json').version %>",
+          "version": "<%= readJSON('/version.json').version %><%= (channel === '-beta') ? ".2.beta" : "" %>",
           "update_link": "<%= meta.downloads %><%= name %><%= channel %>.crx"
         }
       ]
