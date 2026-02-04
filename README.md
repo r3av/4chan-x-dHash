@@ -2,11 +2,11 @@
 > **Forked from [ccd0/4chan-x](https://github.com/ccd0/4chan-x)**
 
 ## 1. Overview
-This is a fork of 4chan X with dHash filtering added. The dHash feature calculates a perceptual hash called dHash for an image. This hash allows users to filter duplicate images even if they have slightly different metadata, resolution, or compression, as "similar looking" images produce identical or near-identical hashes.
+This is a fork of 4chan X with dHash filtering added. The dHash feature calculates a perceptual hash called dHash for an image. This "dHash" allows users to filter duplicate images even if they have slightly different metadata, resolution, or compression, as "similar looking" images produce identical or near-identical hashes.
 
 - **This means that if you filter an image with dHash, any future images that are similar to the original image will also be hidden _even if the md5 hash is different_.**
 
-**How it works**: The algorithm resizes the image to a standardized 9x8 grid, converts it to grayscale, and compares pixel brightness gradients. This generates a compact 64-bit "fingerprint" that ignores file format or small visual artifacts. **It utilizes fuzzy matching (Hamming distance) to catch images that are extremely close but not byte-for-byte identical.**
+**How it works**: The algorithm resizes the image to a standardized 9x8 grid, converts it to grayscale, and compares pixel brightness gradients. This generates a compact 64-bit "fingerprint" that ignores file format or small visual artifacts. 
 
 **Mobile Compatible**: This fork includes specific optimizations for mobile browsers, ensuring a native-like experience on smaller screens while retaining all 4chan X features.
 
@@ -15,15 +15,16 @@ This is a fork of 4chan X with dHash filtering added. The dHash feature calculat
 ## 2. Install
 
 Use the userscript in the [/testbuilds/](testbuilds/) directory to install and test it out.
-- Backup your current 4chan X installation and settings.
+- **Backup your current 4chan X installation and settings.**
 - Disable your current 4chan X installation.
-- Install the [userscript](testbuilds/4chan-X.user.js) in Tampermonkey or Greasemonkey.
+- Install the [4chan-X.user.js](testbuilds/4chan-X.user.js) in Tampermonkey or Greasemonkey.
+- Import your settings from your previous 4chan X installation.
  
 ## 3. Configuration and Usage
 To enable, go to the 4chan X settings and enable the Image dHash feature. 
 - 4chan X Settings -> Main -> Filtering -> Check the Image dHash checkbox.
 
-To use, filter any image like you would normally would with MD5, but select the dHash option instead of the MD5 option.
+To use, **filter any image like you would normally would with MD5, but select the dHash option** instead of the MD5 option.
 - Select the dropdown menu in the top right corner of a post.
 - Navigate the **dropdown menu -> Filter -> Image dHash**
 - Image dHash will be saved to the dHash filter list, which can be accessed from 4chan X settings in the top right.
@@ -37,8 +38,7 @@ The feature is controlled by the following settings in `Config.coffee`:
 - **Save dHash MD5s**: Automatically adds the MD5 of any image hidden by a dHash filter to the MD5 filter list.
 
 ## 4. Caveats
-Implementing perceptual hashing introduces new background processing compared to standard 4chan X.
-dHash may perform additional calculations on thumbnails. To ensure a smooth experience, we utilize extensive caching and efficient job queues. We also specifically target the thumbnail images to minimize bandwidth usage The calculations are neglible for the most part but we want users using this feature to be aware of the fact that it does use additional processing power.
+Implementing perceptual hashing introduces new background processing on thumbnails compared to standard 4chan X. To ensure a smooth experience, we utilize caching and job queues. We also specifically target the thumbnail images to minimize bandwidth usage. The calculations are essentially neglible but we want users using this feature to be aware of the fact that it does use additional processing power.
 
 This necessity for background processing leads to a key architectural difference:
 
@@ -73,6 +73,7 @@ We implement a standard horizontal difference hash (dHash):
 2. **Grayscale**: Convert pixels to grayscale values.
 3. **Compare**: Compare each pixel to its right neighbor. If the left pixel is brighter, the bit is set to 1, otherwise 0.
 4. **Hex Output**: The resulting 64 comparisons form a 64-bit integer, represented as a hexadecimal string.
+5. **Hamming Distance**: Utilizes fuzzy matching (Hamming distance) to catch images that are extremely close but not byte-for-byte identical.
 
 ### 5.4 Filtering (`Filter.coffee` integration)
 - **Hash Assignment**: Once computed, the hash is stored on the file object (`file.dhash`).
