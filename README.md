@@ -8,8 +8,6 @@ This is a fork of 4chan X with dHash filtering added. The dHash feature calculat
 
 **How it works**: The algorithm resizes the image to a standardized 9x8 grid, converts it to grayscale, and compares pixel brightness gradients. This generates a compact 64-bit "fingerprint" that ignores file format or small visual artifacts. 
 
-**Mobile Compatible**: This fork includes specific optimizations for mobile browsers, ensuring a native-like experience on smaller screens while retaining all 4chan X features.
-
 **Attribution**: The difference hash (dHash) algorithm used here is based on the work of **Neal Krawetz** (see [Kind of Like That](https://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html)).
 
 ## 2. Install
@@ -19,6 +17,16 @@ Use the userscript in the [/testbuilds/](testbuilds/) directory to install and t
 - Disable your current 4chan X installation.
 - Install the [4chan-X.user.js](testbuilds/4chan-X.user.js) in Tampermonkey or Greasemonkey.
 - Import your settings from your previous 4chan X installation.
+
+## 2.a Mobile Install
+
+**Mobile Compatible**: This fork includes specific optimizations for mobile browsers, ensuring a native-like experience on smaller screens while retaining all 4chan X features.
+For iOS 26, Safari
+- Install the [Userscripts App](https://apps.apple.com/us/app/userscripts/id1463298887) on the appstore.
+- Download [4chan-X.user.js](testbuilds/4chan-X.user.js)
+- In your Files app, move 4chan-X.user.js from your Downloads folder (or wherever you downloaded it too) to the Userscripts folder
+- In iOS Settings > Apps > General > Extensions > Set Userscripts: ON
+- In Safari, on any board, like boards.4chan.org/g/ > In the bottom next to the left of the URL bar, click on the puzzle piece, -> Manage Extensions -> enable Userscripts App.
  
 ## 3. Configuration and Usage
 To enable, go to the 4chan X settings and enable the Image dHash feature. 
