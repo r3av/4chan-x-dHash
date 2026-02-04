@@ -65,7 +65,7 @@ DHash =
         DHash.prepare @, file
 
   onPostsInserted: (e) ->
-    return unless Conf['Image dHash']
+    return unless Conf['Image dHash'] and e.detail
     for post in e.detail
       continue if post.isClone
       for file in post.files

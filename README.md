@@ -1,4 +1,4 @@
-# 4chan X v1.14.23.2 with dHash
+# 4chan X v1.14.23.2.3 with dHash
 > **Forked from [ccd0/4chan-x](https://github.com/ccd0/4chan-x)**
 
 ## 1. Overview
@@ -7,6 +7,8 @@ This is a fork of 4chan X with dHash filtering added. The dHash feature calculat
 - **This means that if you filter an image with dHash, any future images that are similar to the original image will also be hidden _even if the md5 hash is different_.**
 
 **How it works**: The algorithm resizes the image to a standardized 9x8 grid, converts it to grayscale, and compares pixel brightness gradients. This generates a compact 64-bit "fingerprint" that ignores file format or small visual artifacts. **It utilizes fuzzy matching (Hamming distance) to catch images that are extremely close but not byte-for-byte identical.**
+
+**Mobile Compatible**: This fork includes specific optimizations for mobile browsers, ensuring a native-like experience on smaller screens while retaining all 4chan X features.
 
 **Attribution**: The difference hash (dHash) algorithm used here is based on the work of **Neal Krawetz** (see [Kind of Like That](https://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html)).
 
@@ -36,9 +38,7 @@ The feature is controlled by the following settings in `Config.coffee`:
 
 ## 4. Caveats
 Implementing perceptual hashing introduces new background processing compared to standard 4chan X.
-
-> [!WARNING]
-> **Possible Performance Impact**: dHash may perform additional **calculations** on every thumbnail. While your browser naturally downloads and renders images during normal browsing, dHash adds a layer of background pixel analysis. To ensure a smooth experience, we utilize extensive caching and efficient job queues. We also specifically target the thumbnail images to minimize bandwidth usage, as users already download the thumbnail images in a regular viewing experience. However, users on low-end devices should be aware of the increased CPU usage.
+dHash may perform additional calculations on thumbnails. To ensure a smooth experience, we utilize extensive caching and efficient job queues. We also specifically target the thumbnail images to minimize bandwidth usage The calculations are neglible for the most part but we want users using this feature to be aware of the fact that it does use additional processing power.
 
 This necessity for background processing leads to a key architectural difference:
 

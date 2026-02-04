@@ -232,7 +232,7 @@ Config =
         1
       ]
       'Save dHash MD5s': [
-        false
+        true
         'Automatically add the MD5 of any image hidden by dHash to the MD5 filter list.'
         1
       ]

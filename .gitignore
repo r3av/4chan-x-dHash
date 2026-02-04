@@ -7,11 +7,6 @@ node_modules/
 /testbuilds/*
 !/testbuilds/4chan-X.user.js
 !/testbuilds/4chan-X.meta.js
-!/testbuilds/4chan-X-beta.user.js
-!/testbuilds/4chan-X-beta.meta.js
-!/testbuilds/updates-beta.json
-!/testbuilds/updates-beta.xml
-!/testbuilds/4chan-X.meta.js
 /test.html
 /captchas.html
 /install.json

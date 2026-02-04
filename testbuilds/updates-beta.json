@@ -3,7 +3,7 @@
     "4chan-x@4chan-x.net": {
       "updates": [
         {
-          "version": "1.14.23.2.2.2.beta",
+          "version": "1.14.23.2.3.2.beta",
           "update_link": "https://raw.githubusercontent.com/r3av/4chan-x-dHash/feature/dHash-v1/testbuilds/4chan-X-beta.crx"
         }
       ]

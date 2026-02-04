@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan X with dHash
-// @version      1.14.23.2.2
+// @version      1.14.23.2.3
 // @minGMVer     1.14
 // @minFFVer     26
 // @namespace    4chan-X
@@ -195,7 +195,7 @@
 
 'use strict';
 
-var $, $$, Anonymize, AntiAutoplay, ArchiveLink, Banner, Board, BoardConfig, CSS, Callbacks, Captcha, CatalogLinks, CatalogThread, CatalogThreadNative, Config, Connection, CopyTextLink, CrossOrigin, CustomCSS, DHash, DataBoard, DeleteLink, DownloadLink, Embedding, ExpandComment, ExpandThread, FappeTyme, Favicon, Fetcher, FileInfo, Filter, Flash, Fourchan, Gallery, Get, Header, IDColor, IDHighlight, IDPostCount, ImageCommon, ImageExpand, ImageHost, ImageHover, ImageLoader, Index, Keybinds, Linkify, Main, MarkNewIPs, Menu, Metadata, ModContact, Nav, NormalizeURL, Notice, PSA, PSAHiding, PassLink, PassMessage, Polyfill, Post, PostHiding, PostJumper, PostRedirect, PostSuccessful, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteStrikeThrough, QuoteThreading, QuoteYou, Quotify, RandomAccessList, Recursive, Redirect, RelativeDates, RemoveSpoilers, ReplyPruning, Report, ReportLink, RevealSpoilers, SW, Sauce, Settings, ShimSet, SimpleDict, Site, Test, Thread, ThreadHiding, ThreadLinks, ThreadStats, ThreadUpdater, ThreadWatcher, Time, Tinyboard, UI, Unread, UnreadIndex, Volume;
+var $, $$, Anonymize, AntiAutoplay, ArchiveLink, Banner, Board, BoardConfig, CSS, Callbacks, Captcha, CatalogLinks, CatalogThread, CatalogThreadNative, Config, Connection, CopyTextLink, CrossOrigin, CustomCSS, DHash, DHashMenu, DataBoard, DeleteLink, DownloadLink, Embedding, ExpandComment, ExpandThread, FappeTyme, Favicon, Fetcher, FileInfo, Filter, Flash, Fourchan, Gallery, Get, Header, IDColor, IDHighlight, IDPostCount, ImageCommon, ImageExpand, ImageHost, ImageHover, ImageLoader, Index, Keybinds, Linkify, Main, MarkNewIPs, Menu, Metadata, MobileLayout, ModContact, Nav, NormalizeURL, Notice, PSA, PSAHiding, PassLink, PassMessage, Polyfill, Post, PostHiding, PostJumper, PostRedirect, PostSuccessful, QR, QuoteBacklink, QuoteCT, QuoteInline, QuoteOP, QuotePreview, QuoteStrikeThrough, QuoteThreading, QuoteYou, Quotify, RandomAccessList, Recursive, Redirect, RelativeDates, RemoveSpoilers, ReplyPruning, Report, ReportLink, RevealSpoilers, SW, Sauce, Settings, ShimSet, SimpleDict, Site, Test, Thread, ThreadHiding, ThreadLinks, ThreadStats, ThreadUpdater, ThreadWatcher, Time, Tinyboard, UI, Unread, UnreadIndex, Volume;
 
 var Conf, E, c, d, doc, docSet, g;
 
@@ -210,7 +210,7 @@ docSet = function() {
 };
 
 g = {
-  VERSION:   '1.14.23.2.2',
+  VERSION:   '1.14.23.2.3',
   NAMESPACE: '4chan X with dHash.',
   sites:     Object.create(null),
   boards:    Object.create(null)
@@ -307,7 +307,7 @@ Config = (function() {
         'Image dHash': [true, 'Enable dHash calculation for images.'],
         'Show dHash Calculation Progress': [false, 'Show dHash calculation progress in the header.', 1],
         'Show dHash Status': [true, 'Show dHash On/Off status in the header.', 1],
-        'Save dHash MD5s': [false, 'Automatically add the MD5 of any image hidden by dHash to the MD5 filter list.', 1],
+        'Save dHash MD5s': [true, 'Automatically add the MD5 of any image hidden by dHash to the MD5 filter list.', 1],
         'Hide until dHash': [false, 'Hide posts with images until the dHash has been calculated and checked (prevents unwanted images from pop-in).', 1],
         'dHash Stats': [true, 'Show persistent statistics in the header.', 1]
       },
@@ -597,9 +597,9 @@ Config = (function() {
 
 }).call(this);
 
-CSS = {
+ CSS = {
 
-boards:
+  boards:
 "/*!\n\
  *  Font Awesome 4.7.0 by @davegandy - http://fontawesome.io - @fontawesome\n\
  *  License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)\n\
@@ -1370,7 +1370,9 @@ boards:
 .field:hover {\n\
   border-color: #999;\n\
 }\n\
-.field:hover, .field:focus, .field.focus {\n\
+.field:hover,\n\
+.field:focus,\n\
+.field.focus {\n\
   color: #000;\n\
 }\n\
 .field[disabled] {\n\
@@ -1393,13 +1395,14 @@ a[href=\"javascript:;\"] {\n\
 .warning {\n\
   color: red;\n\
 }\n\
-:root.sw-yotsuba #boardNavDesktop, :root.sw-yotsuba #boardNavMobile {\n\
+:root.sw-yotsuba #boardNavDesktop,\n\
+:root.sw-yotsuba #boardNavMobile {\n\
   display: none !important;\n\
 }\n\
 :root.hide-bottom-board-list $site$boardListBottom {\n\
   display: none;\n\
 }\n\
-body.hasDropDownNav{\n\
+body.hasDropDownNav {\n\
   margin-top: 5px;\n\
 }\n\
 :root:not(.keyboard-focus) a {\n\
@@ -1419,11 +1422,12 @@ body.hasDropDownNav{\n\
 }\n\
 /* 4chan style fixes */\n\
 /* overrides 4chan CSS on div.opContainer, div.op */\n\
-:root.sw-yotsuba .opContainer, :root.sw-yotsuba .op {\n\
+:root.sw-yotsuba .opContainer,\n\
+:root.sw-yotsuba .op {\n\
   display: block;\n\
   overflow: visible;\n\
 }\n\
-:root.sw-yotsuba .reply > .file > .fileText {\n\
+:root.sw-yotsuba .reply>.file>.fileText {\n\
   margin: 0 20px;\n\
 }\n\
 :root.sw-yotsuba #arc-list span.quote {\n\
@@ -1447,15 +1451,15 @@ body.hasDropDownNav{\n\
   background: none;\n\
 }\n\
 /* Disable obnoxious captcha fade-in. */\n\
-:root.sw-yotsuba > body > div:last-of-type {\n\
+:root.sw-yotsuba>body>div:last-of-type {\n\
   transition: none !important;\n\
 }\n\
 /* Fix captcha scrolling to top of page. */\n\
-:root.sw-yotsuba > body > div[style*=\" top: -10000px;\"] {\n\
+:root.sw-yotsuba>body>div[style*=\" top: -10000px;\"] {\n\
   visibility: hidden !important;\n\
 }\n\
 /* Make long filenames wrap properly: https://github.com/ccd0/4chan-x/issues/1082 */\n\
-:root.sw-yotsuba .post > .file {\n\
+:root.sw-yotsuba .post>.file {\n\
   /* currently nonstandard but may be added: https://lists.w3.org/Archives/Public/www-style/2016Mar/0352.html, https://bugzilla.mozilla.org/show_bug.cgi?id=1296042 */\n\
   word-break: break-word;\n\
 }\n\
@@ -1463,7 +1467,7 @@ body.hasDropDownNav{\n\
   word-wrap: break-word;\n\
   max-width: calc(100vw - 90px);\n\
 }\n\
-:root.sw-yotsuba > body.is_catalog .thread > a > img {\n\
+:root.sw-yotsuba>body.is_catalog .thread>a>img {\n\
   display: inline-block;\n\
 }\n\
 /* Links to NSFW boards */\n\
@@ -1475,12 +1479,14 @@ body.hasDropDownNav{\n\
   white-space: normal;\n\
 }\n\
 /* Ads */\n\
-:root.sw-yotsuba .ad-cnt > *, :root.sw-yotsuba .adg-rects > *, :root.sw-yotsuba .bsa-cnt {\n\
+:root.sw-yotsuba .ad-cnt>*,\n\
+:root.sw-yotsuba .adg-rects>*,\n\
+:root.sw-yotsuba .bsa-cnt {\n\
   height: auto !important;\n\
 }\n\
 :root.sw-yotsuba:not(.ads-loaded) hr.abovePostForm,\n\
-:root.sw-yotsuba:not(.ads-loaded) .adg-rects > hr,\n\
-:root.sw-yotsuba #adg-ol + hr,\n\
+:root.sw-yotsuba:not(.ads-loaded) .adg-rects>hr,\n\
+:root.sw-yotsuba #adg-ol+hr,\n\
 :root.sw-yotsuba .danbo-slot:empty {\n\
   display: none;\n\
 }\n\
@@ -1492,7 +1498,7 @@ body.hasDropDownNav{\n\
   display: none !important;\n\
 }\n\
 /* Tinyboard / vichan conflicts */\n\
-#menu > .hide-thread-link {\n\
+#menu>.hide-thread-link {\n\
   width: auto;\n\
   height: auto;\n\
   overflow: visible;\n\
@@ -1559,8 +1565,10 @@ audio.controls-added {\n\
 }\n\
 /* fixed, z-index */\n\
 #overlay,\n\
-#qp, #ihover,\n\
-#navlinks, .fixed #header-bar,\n\
+#qp,\n\
+#ihover,\n\
+#navlinks,\n\
+.fixed #header-bar,\n\
 :root.float #updater,\n\
 :root.float #thread-stats,\n\
 #qr {\n\
@@ -1569,16 +1577,20 @@ audio.controls-added {\n\
 #overlay {\n\
   z-index: 999;\n\
 }\n\
-#qp, #ihover {\n\
+#qp,\n\
+#ihover {\n\
   z-index: 60;\n\
 }\n\
-#menu, .gal-buttons {\n\
+#menu,\n\
+.gal-buttons {\n\
   z-index: 50;\n\
 }\n\
-#updater, #thread-stats {\n\
+#updater,\n\
+#thread-stats {\n\
   z-index: 40;\n\
 }\n\
-:root.fixed #header-bar, #notifications {\n\
+:root.fixed #header-bar,\n\
+#notifications {\n\
   z-index: 35;\n\
 }\n\
 #a-gallery {\n\
@@ -1691,7 +1703,8 @@ audio.controls-added {\n\
 .fixed.bottom-header #header-bar #scroll-marker {\n\
   bottom: 100%;\n\
 }\n\
-#board-list a, #shortcuts a:not(.entry) {\n\
+#board-list a,\n\
+#shortcuts a:not(.entry) {\n\
   text-decoration: none;\n\
   padding: 1px;\n\
 }\n\
@@ -1759,28 +1772,29 @@ audio.controls-added {\n\
     flex: none;\n\
     margin-right: 5px;\n\
   }\n\
-  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list > .boardList {\n\
+  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list>.boardList {\n\
     -webkit-flex: auto;\n\
     flex: auto;\n\
     display: -webkit-flex;\n\
     display: flex;\n\
-    width: 0px; /* XXX Fixes Edge not shrinking the board list below default size when needed */\n\
+    width: 0px;\n\
+    /* XXX Fixes Edge not shrinking the board list below default size when needed */\n\
   }\n\
-  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list > .boardList > a,\n\
-  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list > .boardList > span:not(.space):not(.spacer) {\n\
+  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list>.boardList>a,\n\
+  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list>.boardList>span:not(.space):not(.spacer) {\n\
     -webkit-flex: none;\n\
     flex: none;\n\
     padding: .17em;\n\
     margin: -.17em -.32em;\n\
   }\n\
-  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list > .boardList > span {\n\
+  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list>.boardList>span {\n\
     pointer-events: none;\n\
   }\n\
-  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list > .boardList > span.space {\n\
+  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list>.boardList>span.space {\n\
     -webkit-flex: 0 .63 .63em;\n\
     flex: 0 .63 .63em;\n\
   }\n\
-  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list > .boardList > span.spacer {\n\
+  :root.sw-yotsuba.fixed:not(.centered-links) #full-board-list>.boardList>span.spacer {\n\
     -webkit-flex: 0 .38 .38em;\n\
     flex: 0 .38 .38em;\n\
   }\n\
@@ -1846,13 +1860,13 @@ audio.controls-added {\n\
 .notification a {\n\
   color: white;\n\
 }\n\
-.notification > .close {\n\
+.notification>.close {\n\
   padding: 7px;\n\
   top: 0px;\n\
   right: 5px;\n\
   position: absolute;\n\
 }\n\
-.notification > .fa-times::before {\n\
+.notification>.fa-times::before {\n\
   font-size: 11px !important;\n\
 }\n\
 .message {\n\
@@ -1899,15 +1913,15 @@ audio.controls-added {\n\
   -webkit-flex-direction: column;\n\
   flex-direction: column;\n\
 }\n\
-#fourchanx-settings > nav {\n\
+#fourchanx-settings>nav {\n\
   padding: 2px 2px 8px;\n\
   display: -webkit-flex;\n\
   display: flex;\n\
 }\n\
-#fourchanx-settings > nav a {\n\
+#fourchanx-settings>nav a {\n\
   text-decoration: underline;\n\
 }\n\
-#fourchanx-settings > nav a.close {\n\
+#fourchanx-settings>nav a.close {\n\
   text-decoration: none;\n\
   padding: 0 2px;\n\
   margin: 0;\n\
@@ -1924,7 +1938,9 @@ audio.controls-added {\n\
   -webkit-flex: 1;\n\
   flex: 1;\n\
 }\n\
-.export, .import, .reset {\n\
+.export,\n\
+.import,\n\
+.reset {\n\
   cursor: pointer;\n\
   text-decoration: none !important;\n\
 }\n\
@@ -1960,7 +1976,7 @@ audio.controls-added {\n\
 .section-main label {\n\
   text-decoration: underline;\n\
 }\n\
-div[data-checked=\"false\"] > .suboption-list {\n\
+div[data-checked=\"false\"]>.suboption-list {\n\
   display: none;\n\
 }\n\
 .suboption-list {\n\
@@ -1975,11 +1991,11 @@ div[data-checked=\"false\"] > .suboption-list {\n\
   height: 100%;\n\
   border-left: 1px solid;\n\
 }\n\
-.suboption-list > div {\n\
+.suboption-list>div {\n\
   position: relative;\n\
   padding-left: 1.4em;\n\
 }\n\
-.suboption-list > div::before {\n\
+.suboption-list>div::before {\n\
   content: \"\";\n\
   display: inline-block;\n\
   position: absolute;\n\
@@ -2002,19 +2018,21 @@ div[data-checked=\"false\"] > .suboption-list {\n\
 .section-filter textarea {\n\
   height: 500px;\n\
 }\n\
-.section-main a, .section-filter a, .section-advanced a {\n\
+.section-main a,\n\
+.section-filter a,\n\
+.section-advanced a {\n\
   text-decoration: underline;\n\
 }\n\
-#sauce-doc-expand:not(:checked) ~ #sauce-doc {\n\
+#sauce-doc-expand:not(:checked)~#sauce-doc {\n\
   max-height: 130px;\n\
   overflow: auto;\n\
 }\n\
-#sauce-doc > label {\n\
+#sauce-doc>label {\n\
   float: right;\n\
   margin: 0 5px;\n\
 }\n\
 /* XXX for OneeChan */\n\
-#sauce-doc-expand + .riceCheck {\n\
+#sauce-doc-expand+.riceCheck {\n\
   display: none;\n\
 }\n\
 .section-sauce textarea {\n\
@@ -2047,11 +2065,11 @@ div[data-checked=\"false\"] > .suboption-list {\n\
   font-style: normal;\n\
   font-size: 11px;\n\
 }\n\
-.favicon-preview > img {\n\
-    vertical-align: middle;\n\
+.favicon-preview>img {\n\
+  vertical-align: middle;\n\
 }\n\
-.favicon-preview > img:nth-of-type(3n+1) {\n\
-    margin-left: 4px;\n\
+.favicon-preview>img:nth-of-type(3n+1) {\n\
+  margin-left: 4px;\n\
 }\n\
 .section-keybinds .field {\n\
   font-family: monospace;\n\
@@ -2119,7 +2137,7 @@ div[data-checked=\"false\"] > .suboption-list {\n\
 #index-search::-webkit-search-cancel-button {\n\
   display: none;\n\
 }\n\
-#index-search:not([data-searching]) + #index-search-clear {\n\
+#index-search:not([data-searching])+#index-search-clear {\n\
   display: none;\n\
 }\n\
 #index-options {\n\
@@ -2131,7 +2149,7 @@ div[data-checked=\"false\"] > .suboption-list {\n\
   height: 28px;\n\
   margin: -14px 0;\n\
 }\n\
-#lastlong-options > input {\n\
+#lastlong-options>input {\n\
   padding: 0;\n\
   border: 0 !important;\n\
   text-align: center;\n\
@@ -2162,11 +2180,11 @@ div[data-checked=\"false\"] > .suboption-list {\n\
 .catalog-thread.catalog-thread {\n\
   margin: 2px;\n\
 }\n\
-.catalog-small > .catalog-thread {\n\
+.catalog-small>.catalog-thread {\n\
   width: 165px;\n\
   height: 320px;\n\
 }\n\
-.catalog-large > .catalog-thread {\n\
+.catalog-large>.catalog-thread {\n\
   width: 270px;\n\
   height: 410px;\n\
 }\n\
@@ -2202,15 +2220,15 @@ div[data-checked=\"false\"] > .suboption-list {\n\
   margin: -21px -1px -1px;\n\
   overflow: visible;\n\
 }\n\
-.catalog-thread.noFile > * > .catalog-post {\n\
+.catalog-thread.noFile>*>.catalog-post {\n\
   margin-top: -7px;\n\
   padding-top: 6px;\n\
 }\n\
-:root.catalog-hover-expand .catalog-container:hover > .catalog-post {\n\
+:root.catalog-hover-expand .catalog-container:hover>.catalog-post {\n\
   margin-left: -61px;\n\
   margin-right: -61px;\n\
 }\n\
-:root.catalog-hover-expand .catalog-container:hover > * > :not(.catalog-replies) {\n\
+:root.catalog-hover-expand .catalog-container:hover>*> :not(.catalog-replies) {\n\
   padding-left: 2px;\n\
   padding-right: 2px;\n\
 }\n\
@@ -2237,18 +2255,18 @@ div[data-checked=\"false\"] > .suboption-list {\n\
   height: 13px;\n\
   padding: 20px 36px;\n\
 }\n\
-.catalog-icons > img,\n\
-.catalog-stats > .menu-button {\n\
+.catalog-icons>img,\n\
+.catalog-stats>.menu-button {\n\
   width: 1em;\n\
   height: 1em;\n\
   margin: 0;\n\
   vertical-align: text-top;\n\
   padding-left: 2px;\n\
 }\n\
-.catalog-stats > .menu-button {\n\
+.catalog-stats>.menu-button {\n\
   font-weight: normal;\n\
 }\n\
-.catalog-stats > .menu-button > i::before {\n\
+.catalog-stats>.menu-button>i::before {\n\
   line-height: 11px;\n\
 }\n\
 .catalog-stats {\n\
@@ -2256,37 +2274,37 @@ div[data-checked=\"false\"] > .suboption-list {\n\
   font-weight: 700;\n\
   padding-top: 2px;\n\
 }\n\
-.catalog-stats > [title] {\n\
+.catalog-stats>[title] {\n\
   cursor: help;\n\
 }\n\
-.catalog-post > .postMessage {\n\
+.catalog-post>.postMessage {\n\
   margin: 0;\n\
   padding-bottom: .3em;\n\
 }\n\
-.catalog-container:not(:hover) > * > .file,\n\
-.catalog-container:not(:hover) > * > .postInfo > :not(.subject),\n\
-.catalog-container:not(:hover) > * > .catalog-replies,\n\
+.catalog-container:not(:hover)>*>.file,\n\
+.catalog-container:not(:hover)>*>.postInfo> :not(.subject),\n\
+.catalog-container:not(:hover)>*>.catalog-replies,\n\
 .catalog-container:not(:hover) .extra-linebreak,\n\
 .catalog-container:not(:hover) .abbr,\n\
-:root:not(.catalog-hover-expand) .catalog-container > * > .file,\n\
-:root:not(.catalog-hover-expand) .catalog-container > * > .postInfo > :not(.subject),\n\
-:root:not(.catalog-hover-expand) .catalog-container > * > .catalog-replies,\n\
+:root:not(.catalog-hover-expand) .catalog-container>*>.file,\n\
+:root:not(.catalog-hover-expand) .catalog-container>*>.postInfo> :not(.subject),\n\
+:root:not(.catalog-hover-expand) .catalog-container>*>.catalog-replies,\n\
 :root:not(.catalog-hover-expand) .catalog-container .extra-linebreak,\n\
 :root:not(.catalog-hover-expand) .catalog-container .abbr,\n\
-.catalog-thread > .catalog-container > :not(.catalog-post),\n\
-.catalog-post > .file > :not(.fileText),\n\
-.catalog-post > * > .fileText > :not(:first-child),\n\
-.catalog-post > .postInfo > :not(.subject):not(.nameBlock):not(.dateTime),\n\
-.catalog-post > .postInfo > .nameBlock > .contact-links,\n\
-.catalog-post > * > * > .posteruid,\n\
-.catalog-post > * > * > .postJumper,\n\
-:root.bottom-backlinks .catalog-post > .container,\n\
-.post:not(.catalog-post) > .catalog-link,\n\
-.post:not(.catalog-post) > .catalog-stats,\n\
-.post:not(.catalog-post) > .catalog-replies {\n\
+.catalog-thread>.catalog-container> :not(.catalog-post),\n\
+.catalog-post>.file> :not(.fileText),\n\
+.catalog-post>*>.fileText> :not(:first-child),\n\
+.catalog-post>.postInfo> :not(.subject):not(.nameBlock):not(.dateTime),\n\
+.catalog-post>.postInfo>.nameBlock>.contact-links,\n\
+.catalog-post>*>*>.posteruid,\n\
+.catalog-post>*>*>.postJumper,\n\
+:root.bottom-backlinks .catalog-post>.container,\n\
+.post:not(.catalog-post)>.catalog-link,\n\
+.post:not(.catalog-post)>.catalog-stats,\n\
+.post:not(.catalog-post)>.catalog-replies {\n\
   display: none;\n\
 }\n\
-.catalog-post > .file {\n\
+.catalog-post>.file {\n\
   position: absolute;\n\
   left: 0;\n\
   right: 0;\n\
@@ -2294,40 +2312,41 @@ div[data-checked=\"false\"] > .suboption-list {\n\
   min-height: 20px;\n\
   background-color: inherit;\n\
 }\n\
-.catalog-post > * > .fileText {\n\
+.catalog-post>*>.fileText {\n\
   position: relative;\n\
   padding: 2px;\n\
   background-color: inherit;\n\
 }\n\
-.catalog-small .catalog-post > * .fileText {\n\
+.catalog-small .catalog-post>* .fileText {\n\
   font-size: 10px;\n\
 }\n\
-.catalog-post > * > .fileText:not(:hover) {\n\
+.catalog-post>*>.fileText:not(:hover) {\n\
   white-space: nowrap;\n\
   overflow: hidden;\n\
   text-overflow: ellipsis;\n\
 }\n\
-.catalog-post > * > .fileText:hover {\n\
+.catalog-post>*>.fileText:hover {\n\
   z-index: 1;\n\
 }\n\
 /* overrides 4chan CSS on div.post div.postInfo */\n\
-.catalog-post > .postInfo.postInfo {\n\
+.catalog-post>.postInfo.postInfo {\n\
   width: auto;\n\
 }\n\
-.catalog-post > * > .subject {\n\
+.catalog-post>*>.subject {\n\
   display: block;\n\
 }\n\
-.catalog-post > * > .dateTime {\n\
+.catalog-post>*>.dateTime {\n\
   display: inline-block;\n\
   font-style: italic;\n\
 }\n\
-:root.catalog-hover-expand .catalog-container:hover > * > * > .nameBlock,\n\
-:root.catalog-hover-expand .catalog-container:hover > * > * > .dateTime,\n\
-:root.catalog-hover-expand .catalog-container:hover > * > .postMessage:not(:empty) {\n\
+:root.catalog-hover-expand .catalog-container:hover>*>*>.nameBlock,\n\
+:root.catalog-hover-expand .catalog-container:hover>*>*>.dateTime,\n\
+:root.catalog-hover-expand .catalog-container:hover>*>.postMessage:not(:empty) {\n\
   padding-top: .3em;\n\
 }\n\
 .catalog-post .extra-linebreak {\n\
-  content: ''; /* makes this work in Blink/WebKit */\n\
+  content: '';\n\
+  /* makes this work in Blink/WebKit */\n\
   display: block;\n\
   margin-top: .3em;\n\
 }\n\
@@ -2342,13 +2361,13 @@ div[data-checked=\"false\"] > .suboption-list {\n\
   -webkit-align-items: stretch;\n\
   align-items: stretch;\n\
 }\n\
-.catalog-reply > * {\n\
+.catalog-reply>* {\n\
   padding: 3px;\n\
   overflow: hidden;\n\
   -webkit-flex: none;\n\
   flex: none;\n\
 }\n\
-.catalog-reply > span {\n\
+.catalog-reply>span {\n\
   font-style: italic;\n\
   font-weight: bold;\n\
 }\n\
@@ -2368,21 +2387,21 @@ div[data-checked=\"false\"] > .suboption-list {\n\
 :root:not(.catalog-hover-expand) .catalog-container .exif {\n\
   display: none !important;\n\
 }\n\
-.catalog-post > * > .exif {\n\
+.catalog-post>*>.exif {\n\
   border-collapse: collapse;\n\
 }\n\
 :root.catalog-hover-expand .catalog-container:hover .exif[style*=\"display: block;\"] {\n\
   display: inline-block !important;\n\
 }\n\
-.catalog-post > * > .exif,\n\
-.catalog-post > * > .exif > tbody {\n\
+.catalog-post>*>.exif,\n\
+.catalog-post>*>.exif>tbody {\n\
   background-color: inherit;\n\
 }\n\
-.catalog-post > * > .exif,\n\
-.catalog-post > * > .exif td {\n\
+.catalog-post>*>.exif,\n\
+.catalog-post>*>.exif td {\n\
   min-width: 0;\n\
 }\n\
-.catalog-post > * > .exif td {\n\
+.catalog-post>*>.exif td {\n\
   padding-top: 1px;\n\
 }\n\
 :root.hats-enabled .catalog-thread::after {\n\
@@ -2391,22 +2410,22 @@ div[data-checked=\"false\"] > .suboption-list {\n\
   position: absolute;\n\
   background-size: contain;\n\
 }\n\
-:root.hats-enabled .catalog-small > .catalog-thread::after {\n\
+:root.hats-enabled .catalog-small>.catalog-thread::after {\n\
   left: -8px;\n\
   top: -59px;\n\
   width: 96px;\n\
   height: 96px;\n\
 }\n\
-:root.hats-enabled:not(.werkTyme) .catalog-small > .catalog-thread:not(.noFile)::after {\n\
+:root.hats-enabled:not(.werkTyme) .catalog-small>.catalog-thread:not(.noFile)::after {\n\
   left: calc(67px - .3px * var(--tn-w));\n\
 }\n\
-:root.hats-enabled .catalog-large > .catalog-thread::after {\n\
+:root.hats-enabled .catalog-large>.catalog-thread::after {\n\
   left: -15px;\n\
   top: -98px;\n\
   width: 160px;\n\
   height: 160px;\n\
 }\n\
-:root.hats-enabled:not(.werkTyme) .catalog-large > .catalog-thread:not(.noFile)::after {\n\
+:root.hats-enabled:not(.werkTyme) .catalog-large>.catalog-thread:not(.noFile)::after {\n\
   left: calc(110px - .5px * var(--tn-w));\n\
 }\n\
 /* Copy Text Link's textarea element */\n\
@@ -2427,9 +2446,9 @@ textarea.copy-text-element {\n\
 /* Unread */\n\
 .unread-line {\n\
   margin: 0;\n\
-  border-color: rgb(255,0,0);\n\
+  border-color: rgb(255, 0, 0);\n\
 }\n\
-.unread-line + br {\n\
+.unread-line+br {\n\
   display: none;\n\
 }\n\
 .unread-mark-read {\n\
@@ -2438,7 +2457,7 @@ textarea.copy-text-element {\n\
   width: 100%;\n\
   text-align: right;\n\
 }\n\
-:not(.unread-thread) > .unread-mark-read {\n\
+:not(.unread-thread)>.unread-mark-read {\n\
   display: none;\n\
 }\n\
 /* Thread Updater */\n\
@@ -2447,7 +2466,7 @@ textarea.copy-text-element {\n\
   border: none;\n\
   box-shadow: none;\n\
 }\n\
-#updater > .move {\n\
+#updater>.move {\n\
   position: absolute;\n\
   top: -5px;\n\
   bottom: -5px;\n\
@@ -2455,7 +2474,7 @@ textarea.copy-text-element {\n\
   right: -5px;\n\
   z-index: -1;\n\
 }\n\
-#updater > div:last-child {\n\
+#updater>div:last-child {\n\
   text-align: center;\n\
 }\n\
 #updater input[type=\"number\"] {\n\
@@ -2472,7 +2491,7 @@ textarea.copy-text-element {\n\
 .new {\n\
   color: limegreen;\n\
 }\n\
-#update-status:not(.empty) + #update-timer:not(.empty):not(.loading) {\n\
+#update-status:not(.empty)+#update-timer:not(.empty):not(.loading) {\n\
   margin-left: 5px;\n\
 }\n\
 #update-timer {\n\
@@ -2507,10 +2526,10 @@ textarea.copy-text-element {\n\
   max-height: 210px;\n\
   overflow-y: hidden;\n\
 }\n\
-#thread-watcher > .move {\n\
+#thread-watcher>.move {\n\
   padding-top: 3px;\n\
 }\n\
-#watched-threads > div {\n\
+#watched-threads>div {\n\
   padding-left: 3px;\n\
   padding-right: 3px;\n\
 }\n\
@@ -2536,13 +2555,15 @@ textarea.copy-text-element {\n\
 #watched-threads .watcher-title:not(:first-child) {\n\
   margin-left: 2px;\n\
 }\n\
-.replies-quoting-you > a, #watcher-link.replies-quoting-you, .last-page > a > .watcher-page {\n\
+.replies-quoting-you>a,\n\
+#watcher-link.replies-quoting-you,\n\
+.last-page>a>.watcher-page {\n\
   color: #F00;\n\
 }\n\
 #thread-watcher a {\n\
   text-decoration: none;\n\
 }\n\
-#thread-watcher .move > .close {\n\
+#thread-watcher .move>.close {\n\
   position: absolute;\n\
   right: 0px;\n\
   top: 0px;\n\
@@ -2568,7 +2589,7 @@ textarea.copy-text-element {\n\
   border: none;\n\
   box-shadow: none;\n\
 }\n\
-:root.float #thread-stats > .move > :not(#page-count) {\n\
+:root.float #thread-stats>.move> :not(#page-count) {\n\
   pointer-events: none;\n\
 }\n\
 :root.float #thread-stats {\n\
@@ -2582,7 +2603,7 @@ textarea.copy-text-element {\n\
   content: ' ';\n\
   visibility: hidden;\n\
 }\n\
-.inline + .hashlink {\n\
+.inline+.hashlink {\n\
   display: none !important;\n\
 }\n\
 :root.resurrect-quotes .deadlink {\n\
@@ -2598,7 +2619,8 @@ textarea.copy-text-element {\n\
 :root:not(.catalog-mode) .inlined {\n\
   opacity: .5;\n\
 }\n\
-#qp input, .forwarded {\n\
+#qp input,\n\
+.forwarded {\n\
   display: none;\n\
 }\n\
 .quotelink.forwardlink,\n\
@@ -2610,10 +2632,10 @@ textarea.copy-text-element {\n\
   text-decoration: underline line-through;\n\
 }\n\
 :root.hide-backlinks .backlink.filtered,\n\
-:root.hide-backlinks .backlink.filtered + .hashlink.filtered {\n\
+:root.hide-backlinks .backlink.filtered+.hashlink.filtered {\n\
   display: none;\n\
 }\n\
-.postNum + .container::before {\n\
+.postNum+.container::before {\n\
   content: \" \";\n\
 }\n\
 :root.bottom-backlinks .container {\n\
@@ -2629,7 +2651,7 @@ textarea.copy-text-element {\n\
   display: table;\n\
   margin: 2px 0;\n\
 }\n\
-.container ~ .inline {\n\
+.container~.inline {\n\
   margin-left: 20px;\n\
 }\n\
 :root.catalog-mode .inline {\n\
@@ -2642,7 +2664,7 @@ textarea.copy-text-element {\n\
   margin: 0 !important;\n\
   padding: 1px 2px !important;\n\
 }\n\
-#qp > .opContainer::after {\n\
+#qp>.opContainer::after {\n\
   content: '';\n\
   clear: both;\n\
   display: table;\n\
@@ -2659,24 +2681,24 @@ textarea.copy-text-element {\n\
 /* Quote Threading */\n\
 .threadContainer {\n\
   margin-left: 20px;\n\
-  border-left: 1px solid rgba(128,128,128,.3);\n\
+  border-left: 1px solid rgba(128, 128, 128, .3);\n\
 }\n\
 .threadOP {\n\
   clear: both;\n\
 }\n\
 /* File */\n\
 .fileText-original,\n\
-.fnswitch:hover > .fntrunc,\n\
-.fnswitch:not(:hover) > .fnfull,\n\
-.expanded-image > .post > .file > .fileThumb > video[data-md5],\n\
-.expanded-image > .post > .file > .fileThumb > img[data-md5] {\n\
+.fnswitch:hover>.fntrunc,\n\
+.fnswitch:not(:hover)>.fnfull,\n\
+.expanded-image>.post>.file>.fileThumb>video[data-md5],\n\
+.expanded-image>.post>.file>.fileThumb>img[data-md5] {\n\
   display: none;\n\
 }\n\
 .full-image[data-file-i-d] {\n\
   display: none;\n\
   cursor: pointer;\n\
 }\n\
-.expanded-image > .post > .file > .fileThumb > .full-image {\n\
+.expanded-image>.post>.file>.fileThumb>.full-image {\n\
   display: inline;\n\
 }\n\
 .expanded-image {\n\
@@ -2699,7 +2721,7 @@ textarea.copy-text-element {\n\
 :root.ua-gecko.fit-width .full-image {\n\
   width: 100%;\n\
 }\n\
-.fileThumb > .warning {\n\
+.fileThumb>.warning {\n\
   clear: both;\n\
 }\n\
 #ihover {\n\
@@ -2710,27 +2732,27 @@ textarea.copy-text-element {\n\
   max-width: 100vw;\n\
 }\n\
 /* WEBM Metadata */\n\
-.webm-title > a::before {\n\
+.webm-title>a::before {\n\
   content: \"title\";\n\
   text-decoration: underline;\n\
 }\n\
-.webm-title.loading > a::after {\n\
+.webm-title.loading>a::after {\n\
   content: \"...\";\n\
 }\n\
-.webm-title.error > a:hover::before,\n\
-.webm-title.error > a:focus::before {\n\
+.webm-title.error>a:hover::before,\n\
+.webm-title.error>a:focus::before {\n\
   content: \"error\";\n\
   text-decoration: none;\n\
 }\n\
-.webm-title > span {\n\
+.webm-title>span {\n\
   cursor: text;\n\
 }\n\
-.webm-title.not-found > span::before {\n\
+.webm-title.not-found>span::before {\n\
   content: \"not found\";\n\
 }\n\
-.webm-title:not(:hover):not(:focus) > span,\n\
-.webm-title:hover > span + a,\n\
-.webm-title:focus > span + a {\n\
+.webm-title:not(:hover):not(:focus)>span,\n\
+.webm-title:hover>span+a,\n\
+.webm-title:focus>span+a {\n\
   display: none;\n\
 }\n\
 /* Volume control */\n\
@@ -2742,7 +2764,7 @@ input[name=\"Default Volume\"] {\n\
 }\n\
 /* Fappe and Werk Tyme */\n\
 :root.fappeTyme $site$replyOriginal.noFile,\n\
-:root.fappeTyme $site$replyOriginal.noFile + br {\n\
+:root.fappeTyme $site$replyOriginal.noFile +br {\n\
   display: none;\n\
 }\n\
 :root.werkTyme $site$thumbLink,\n\
@@ -2766,7 +2788,7 @@ input[name=\"Default Volume\"] {\n\
   vertical-align: middle;\n\
 }\n\
 .indicator {\n\
-  background: rgba(255,0,0,0.8);\n\
+  background: rgba(255, 0, 0, 0.8);\n\
   font-weight: bold;\n\
   display: inline-block;\n\
   min-width: 9px;\n\
@@ -2806,993 +2828,1161 @@ input[name=\"Default Volume\"] {\n\
 .filter-highlight$site$highlightable$reply {\n\
   box-shadow: inset 5px 0 rgba(221, 0, 0, .5);\n\
 }\n\
-:root.highlight-own .yourPost > $site$sideArrows,\n\
-:root.highlight-you .quotesYou > $site$sideArrows,\n\
-.filter-highlight > $site$sideArrows {\n\
+:root.highlight-own .yourPost>$site$sideArrows,\n\
+:root.highlight-you .quotesYou>$site$sideArrows,\n\
+.filter-highlight>$site$sideArrows {\n\
   color: rgba(221, 0, 0, .8);\n\
 }\n\
-:root.highlight-own .yourPost$site$highlightable$op::after,\n\
-:root.highlight-you .quotesYou$site$highlightable$op::after,\n\
-.filter-highlight$site$highlightable$op::after {\n\
-  content: \"\";\n\
-  display: block;\n\
-  clear: both;\n\
-}\n\
-:root:not(.werkTyme) .catalog-thread.filter-highlight .catalog-thumb,\n\
-:root.werkTyme .catalog-thread.filter-highlight:not(:hover),\n\
-:root.werkTyme:not(.catalog-hover-expand) .catalog-thread.filter-highlight,\n\
-:root.werkTyme.catalog-hover-expand .catalog-thread.filter-highlight > .catalog-container:hover > .catalog-post,\n\
-:root.catalog $site$catalog$thread.filter-highlight$site$highlightable$catalog {\n\
-  box-shadow: 0 0 3px 3px rgba(255, 0, 0, .5);\n\
-}\n\
-:root:not(.werkTyme) .catalog-thread.watched .catalog-thumb,\n\
-:root:root.werkTyme .catalog-thread.watched:not(:hover),\n\
-:root:root.werkTyme:not(.catalog-hover-expand) .catalog-thread.watched,\n\
-:root.werkTyme.catalog-hover-expand .catalog-thread.watched > .catalog-container:hover > .catalog-post {\n\
-  border: 2px solid rgba(255, 0, 0, .75);\n\
-}\n\
-/* Spoiler text */\n\
-:root.reveal-spoilers $site$spoiler,\n\
-:root.reveal-spoilers $site$spoiler > a {\n\
-  color: white !important;\n\
-}\n\
-:root.reveal-spoilers .removed-spoiler::before {\n\
-  content: \"[spoiler]\";\n\
-}\n\
-:root.reveal-spoilers .removed-spoiler::after {\n\
-  content: \"[/spoiler]\";\n\
-}\n\
-/* Thread & Reply Hiding */\n\
-.hide-thread-button,\n\
-.hide-reply-button {\n\
-  float: left;\n\
-  margin-right: 4px;\n\
-  padding: 2px;\n\
-}\n\
-$site$infoRoot a.hide-reply-button {\n\
-  margin-right: 6px;\n\
-  padding: 0;\n\
-}\n\
-.replacedSideArrows {\n\
-  float: left;\n\
-}\n\
-.hide-thread-button:not(:hover),\n\
-.hide-reply-button:not(:hover) {\n\
-  opacity: 0.4;\n\
-}\n\
-.threadContainer .hide-reply-button {\n\
-  margin-left: 2px !important;\n\
-  position: relative;\n\
-  left: 1px;\n\
-}\n\
-.hide-thread-button {\n\
-  margin-top: -1px;\n\
-  width: 11px;\n\
-}\n\
-.stub ~ :not(.threadDivider) {\n\
-  display: none !important;\n\
-}\n\
-.stub input {\n\
-  display: inline-block;\n\
-}\n\
-$site$thread[hidden] + hr {\n\
-  display: none;\n\
-}\n\
-:root.reply-hide $site$sideArrows {\n\
-  display: none;\n\
-}\n\
-:root.sw-yotsuba.thread-hide .party-hat {\n\
-  left: 19px;\n\
-}\n\
-/* Anonymize */\n\
-:root.anonymize $site$info$name,\n\
-:root.sw-yotsuba.anonymize .post-author:not([class*=capcode]) {\n\
-  font-size: 0;\n\
-}\n\
-:root.anonymize $site$info$tripcode,\n\
-:root.sw-yotsuba.anonymize .n-pu {\n\
-  display: none;\n\
-}\n\
-:root.anonymize $site$info$name::before,\n\
-:root.sw-yotsuba.anonymize .post-author:not([class*=capcode])::before {\n\
-  content: \"Anonymous\";\n\
-  font-size: 10pt;\n\
-}\n\
-:root.sw-yotsuba.anonymize .flashListing .name::before,\n\
-:root.sw-yotsuba.anonymize .post-last > .post-author:not([class*=capcode])::before {\n\
-  font-size: 9pt;\n\
-}\n\
-/* QR */\n\
-:root.hide-original-post-form #togglePostFormLink,\n\
-#qr.autohide:not(.focus):not(:hover):not(:active) > form,\n\
-:root.thread-view #qr:not(.show-new-thread-option) select[data-name=\"thread\"],\n\
-#file-n-submit:not(.has-file) #qr-filerm {\n\
-  display: none;\n\
-}\n\
-:root.hide-original-post-form #postForm {\n\
-  display: none !important;\n\
-}\n\
-#qr select,\n\
-#qr-filename-container > a,\n\
-.remove,\n\
-.captcha-img {\n\
-  cursor: pointer;\n\
-}\n\
-#qr {\n\
-  position: fixed;\n\
-  padding: 1px;\n\
-  border: 1px solid transparent;\n\
-  min-width: 300px;\n\
-  border-radius: 3px 3px 0 0;\n\
-}\n\
-#qr > form {\n\
-  /* XXX https://code.google.com/p/chromium/issues/detail?id=168840, https://bugs.webkit.org/show_bug.cgi?id=94158 */\n\
-  max-height: 85vh;\n\
-  max-height: calc(100vh - 75px);\n\
-  overflow-y: auto;\n\
-  overflow-x: hidden;\n\
-}\n\
-#qrtab {\n\
-  border-radius: 3px 3px 0 0;\n\
-}\n\
-#qrtab {\n\
-  margin-bottom: 1px;\n\
-}\n\
-#qr .close {\n\
-  float: right;\n\
-  padding: 0 3px;\n\
-}\n\
-.qr-link-container {\n\
-  text-align: center;\n\
-  margin: 16px 0;\n\
-}\n\
-.qr-link-container-bottom {\n\
-  width: 200px;\n\
-  position: absolute;\n\
-  left: -100px;\n\
-  margin-left: 50%;\n\
-  text-align: center;\n\
-}\n\
-.qr-link {\n\
-  border-radius: 3px;\n\
-  padding: 6px 10px 5px;\n\
-  font-weight: bold;\n\
-  vertical-align: middle;\n\
-  border-style: solid;\n\
-  border-width: 1px;\n\
-  font-size: 10pt;\n\
-}\n\
-.qr-link-container + #togglePostFormLink {\n\
-  font-size: 10pt;\n\
-  font-weight: normal;\n\
-  margin: -8px 0 3.5px;\n\
-}\n\
-.persona {\n\
-  width: 100%;\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-flex-direction: row;\n\
-  flex-direction: row;\n\
-}\n\
-.persona .field {\n\
-  -webkit-flex: 1;\n\
-  flex: 1;\n\
-  width: 0;\n\
-}\n\
-#qr.forced-anon input[data-name=\"name\"]:not(.force-show),\n\
-#qr.forced-anon input[data-name=\"sub\"]:not(.force-show),\n\
-#qr.reply-to-thread input[data-name=\"sub\"]:not(.force-show),\n\
-body:not(.board_f) #qr select[name=\"filetag\"],\n\
-#qr.reply-to-thread select[name=\"filetag\"],\n\
-#qr:not(.has-sjis) #sjis-toggle,\n\
-#qr:not(.has-math) #tex-preview-button,\n\
-#qr.tex-preview .textarea > :not(#tex-preview),\n\
-#qr:not(.tex-preview) #tex-preview {\n\
-  display: none;\n\
-}\n\
-.persona button {\n\
-  -webkit-flex: 0 0 23px;\n\
-  flex: 0 0 23px;\n\
-  -webkit-align-self: stretch;\n\
-  align-self: stretch;\n\
-  border: 1px solid #BBB;\n\
-  padding: 0;\n\
-  background: linear-gradient(to bottom, #F8F8F8, #DCDCDC) no-repeat;\n\
-  color: #000;\n\
-}\n\
-#qr.sjis-preview #sjis-toggle, #qr.tex-preview #tex-preview-button {\n\
-  background: #DCDCDC;\n\
-}\n\
-#sjis-toggle, #qr.sjis-preview textarea.field {\n\
-  font-family: \"IPAMonaPGothic\",\"Mona\",\"MS PGothic\",monospace;\n\
-  font-size: 16px;\n\
-  line-height: 17px;\n\
-}\n\
-#tex-preview-button {\n\
-  font-size: 10px;\n\
-}\n\
-#tex-preview {\n\
-  white-space: pre-line;\n\
-}\n\
-#qr textarea.field {\n\
-  height: 14.8em;\n\
-  min-height: 9em;\n\
-}\n\
-#qr.has-captcha textarea.field {\n\
-  height: 9em;\n\
-}\n\
-input.field.tripped:not(:hover):not(:focus) {\n\
-  color: transparent !important;\n\
-  text-shadow: none !important;\n\
-}\n\
-#qr textarea {\n\
-  min-width: 300px;\n\
-  resize: both;\n\
-}\n\
-.field {\n\
-  -moz-box-sizing: border-box;\n\
-  box-sizing: border-box;\n\
-  margin: 0px;\n\
-  padding: 2px 4px 3px;\n\
-}\n\
-#qr label input[type=\"checkbox\"] {\n\
-  position: relative;\n\
-  top: 2px;\n\
-}\n\
-/* Recaptcha v2 */\n\
-#qr .captcha-root {\n\
-  position: relative;\n\
-}\n\
-#qr .captcha-container > div {\n\
-  margin: auto;\n\
-  width: 304px;\n\
-}\n\
-/* XXX scrollable with scroll bar hidden; prevents scroll on space press */\n\
-:root.ua-blink #qr .captcha-container > div,\n\
-:root.ua-edge #qr .captcha-container > div {\n\
-  overflow: hidden;\n\
-}\n\
-:root.ua-blink #qr .captcha-container > div > div:first-of-type,\n\
-:root.ua-edge #qr .captcha-container > div > div:first-of-type {\n\
-  overflow-y: scroll;\n\
-  overflow-x: hidden;\n\
-  padding-right: 30px;\n\
-  height: 99%;\n\
-  width: 100%;\n\
-}\n\
-#qr .captcha-counter {\n\
-  display: block;\n\
-  width: 100%;\n\
-  text-align: center;\n\
-  pointer-events: none;\n\
-}\n\
-#qr.captcha-open .captcha-counter {\n\
-  position: absolute;\n\
-  bottom: 3px;\n\
-}\n\
-#qr .captcha-counter > a {\n\
-  pointer-events: auto;\n\
-  display: inline-block; /* XXX https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8851747/ */\n\
-}\n\
-#qr:not(.captcha-open) .captcha-counter > a {\n\
-  display: block;\n\
-  width: 100%;\n\
-}\n\
-#qr.captcha-v2 #qr-captcha-iframe {\n\
-  width: 302px;\n\
-  height: 423px;\n\
-  border: 0;\n\
-  display: block;\n\
-  margin: auto;\n\
-}\n\
-.goog-bubble-content {\n\
-  max-width: 100vw;\n\
-  max-height: 100vh;\n\
-  overflow: auto;\n\
-}\n\
-.goog-bubble-content iframe {\n\
-  position: static !important;\n\
-}\n\
-/* File Input, Submit Button, Oekaki */\n\
-#file-n-submit, #qr .oekaki {\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-align-items: stretch;\n\
-  align-items: stretch;\n\
-  height: 25px;\n\
-  margin-top: 1px;\n\
-}\n\
-#file-n-submit > input, #qr-draw-button {\n\
-  background: linear-gradient(to bottom, #F8F8F8, #DCDCDC) no-repeat;\n\
-  border: 1px solid #BBB;\n\
-  border-radius: 2px;\n\
-  height: 100%;\n\
-}\n\
-#qr-file-button, #qr-draw-button {\n\
-  width: 15%;\n\
-}\n\
-#file-n-submit input[type=\"submit\"] {\n\
-  width: 25%;\n\
-}\n\
-#qr-filename-container {\n\
-  -webkit-flex: 1 1 auto;\n\
-  flex: 1 1 auto;\n\
-  width: 0;\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-align-items: center;\n\
-  align-items: center;\n\
-  position: relative;\n\
-  padding: 1px;\n\
-}\n\
-input#qr-filename {\n\
-  border: none !important;\n\
-  background: none !important;\n\
-  outline: none;\n\
-}\n\
-#qr-filename,\n\
-.has-file #qr-no-file {\n\
-  display: none;\n\
-}\n\
-#qr-no-file,\n\
-.has-file #qr-filename {\n\
-  -webkit-flex: 1 1 auto;\n\
-  flex: 1 1 auto;\n\
-  width: 0px; /* XXX Fixes filename not shrinking to allow space for buttons in Edge */\n\
-  display: inline-block;\n\
-  padding: 0;\n\
-  padding-left: 3px;\n\
-  overflow: hidden;\n\
-  text-overflow: ellipsis;\n\
-  white-space: nowrap;\n\
-}\n\
-#qr-no-file {\n\
-  color: #AAA;\n\
-}\n\
-#qr .oekaki.has-file {\n\
-  display: none;\n\
-}\n\
-#qr .oekaki > label {\n\
-  -webkit-flex: 1 1 auto;\n\
-  flex: 1 1 auto;\n\
-  width: 0;\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-align-items: center;\n\
-  align-items: center;\n\
-  height: 100%;\n\
-}\n\
-#qr .oekaki > label > span {\n\
-  margin: 0 3px;\n\
-}\n\
-#qr .oekaki > label > input {\n\
-  -webkit-flex: 1 1 auto;\n\
-  flex: 1 1 auto;\n\
-  width: 0;\n\
-  height: 100%;\n\
-}\n\
-#qr .oekaki-bg {\n\
-  position: relative;\n\
-  display: inline-block;\n\
-  height: 100%;\n\
-  width: 10%;\n\
-  margin-left: 3px;\n\
-}\n\
-#qr .oekaki-bg > * {\n\
-  position: absolute;\n\
-  top: 0;\n\
-  left: 0;\n\
-  margin: 0;\n\
-}\n\
-#qr .oekaki-bg > :not([name=\"oekaki-bgcolor\"]) {\n\
-  z-index: 1;\n\
-}\n\
-#qr [name=\"oekaki-bgcolor\"] {\n\
-  height: 100%;\n\
-  width: 100%;\n\
-  border: none;\n\
-  padding: 0;\n\
-}\n\
-#qr [name=\"oekaki-bg\"]:not(:checked) ~ [name=\"oekaki-bgcolor\"] {\n\
-  visibility: hidden;\n\
-}\n\
-#qr input[type=\"file\"] {\n\
-  visibility: hidden;\n\
-  position: absolute;\n\
-}\n\
-/* Spoiler Checkbox, QR Icons */\n\
-#qr-filename-container > label, #qr-filename-container > a {\n\
-  -webkit-flex: none;\n\
-  flex: none;\n\
-  margin: 0;\n\
-  margin-right: 3px;\n\
-}\n\
-#qr:not(.has-spoiler) #qr-spoiler-label,\n\
-#file-n-submit:not(.has-file) #qr-spoiler-label,\n\
-.has-file #paste-area,\n\
-.has-file #url-button,\n\
-#file-n-submit:not(.custom-cooldown) #custom-cooldown-button {\n\
-  display: none;\n\
-}\n\
-#qr-filename-container > label {\n\
-  position: relative;\n\
-}\n\
-#qr-filename-container input[type=\"checkbox\"] {\n\
-  margin: 0;\n\
-}\n\
-.checkbox-letter {\n\
-  font-size: 13px;\n\
-  font-weight: bold;\n\
-}\n\
-#qr-filename-container label:not(:hover) > input[type=\"checkbox\"]:not(:focus):not(:checked),\n\
-#qr-filename-container label:not(:hover) > input[type=\"checkbox\"]:not(:focus):not(:checked) ~ :not(.checkbox-letter),\n\
-#qr-filename-container label:hover > .checkbox-letter,\n\
-input[type=\"checkbox\"]:focus ~ .checkbox-letter,\n\
-input[type=\"checkbox\"]:checked ~ .checkbox-letter {\n\
-  /* not displayed but still focusable */\n\
-  position: absolute;\n\
-  opacity: 0;\n\
-  pointer-events: none;\n\
-}\n\
-.checkbox-letter, #paste-area, #url-button, #custom-cooldown-button, #dump-button {\n\
-  opacity: 0.6;\n\
-}\n\
-#paste-area {\n\
-  font-size: 0;\n\
-}\n\
-#paste-area:focus {\n\
-  opacity: 1;\n\
-}\n\
-#custom-cooldown-button.disabled {\n\
-  opacity: 0.27;\n\
-}\n\
-/* Thread and Flash Tag Select */\n\
-#qr select {\n\
-  background: white;\n\
-  border: 1px solid #CCC;\n\
-}\n\
-#qr select[data-name=\"thread\"] {\n\
-  float: right;\n\
-}\n\
-#qr > form > select {\n\
-  margin-top: 1px;\n\
-}\n\
-/* Dumping UI */\n\
-.dump #dump-list-container {\n\
-  display: block;\n\
-}\n\
-#dump-list-container {\n\
-  display: none;\n\
-  position: relative;\n\
-  overflow-y: hidden;\n\
-  margin-top: 1px;\n\
-}\n\
-#dump-list {\n\
-  overflow-x: auto;\n\
-  overflow-y: auto;\n\
-  white-space: nowrap;\n\
-  width: 248px;\n\
-  max-height: 248px;\n\
-  min-height: 90px;\n\
-  max-width: 100%;\n\
-  min-width: 100%;\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-flex-wrap: wrap;\n\
-  flex-wrap: wrap;\n\
-}\n\
-#dump-list:hover {\n\
-  overflow-x: auto;\n\
-}\n\
-.qr-preview {\n\
-  -moz-box-sizing: border-box;\n\
-  box-sizing: border-box;\n\
-  counter-increment: thumbnails;\n\
-  cursor: move;\n\
-  display: inline-block;\n\
-  height: 90px;\n\
-  width: 90px;\n\
-  padding: 2px;\n\
-  opacity: .5;\n\
-  overflow: hidden;\n\
-  position: relative;\n\
-  text-shadow: 0 0 2px #000;\n\
-  -webkit-transition: opacity .25s ease-in-out, -webkit-transform .25s ease-in-out;\n\
-  transition: opacity .25s ease-in-out, transform .25s ease-in-out, -webkit-transform .25s ease-in-out;\n\
-  vertical-align: top;\n\
-  background-size: cover;\n\
-  -webkit-flex: none;\n\
-  flex: none;\n\
-}\n\
-.qr-preview:hover,\n\
-.qr-preview:focus {\n\
-  opacity: .9;\n\
-}\n\
-.qr-preview::before {\n\
-  content: counter(thumbnails);\n\
-  color: #fff;\n\
-  position: absolute;\n\
-  top: 3px;\n\
-  right: 3px;\n\
-  text-shadow: 0 0 3px #000, 0 0 8px #000;\n\
-}\n\
-.qr-preview#selected {\n\
-  opacity: 1;\n\
-}\n\
-.qr-preview.drag {\n\
-  box-shadow: 0 0 10px rgba(0,0,0,.5);\n\
-  -webkit-transform: scale(.8);\n\
-  transform: scale(.8);\n\
-}\n\
-.qr-preview.over {\n\
-  border-color: #fff;\n\
-  -webkit-transform: scale(1.1);\n\
-  transform: scale(1.1);\n\
-  opacity: 0.9;\n\
-  z-index: 10;\n\
-}\n\
-.qr-preview > span {\n\
-  color: #fff;\n\
-}\n\
-.remove {\n\
-  background: none;\n\
-  color: #e00;\n\
-  padding: 1px;\n\
-}\n\
-a:only-of-type > .remove {\n\
-  display: none;\n\
-}\n\
-.remove:hover::after {\n\
-  content: \" Remove\";\n\
-}\n\
-.qr-preview:not(.has-file) label,\n\
-#qr:not(.has-spoiler) .qr-preview-spoiler {\n\
-  display: none;\n\
-}\n\
-.qr-preview > label {\n\
-  background: rgba(0,0,0,.5);\n\
-  color: #fff;\n\
-  right: 0;\n\
-  bottom: 0;\n\
-  left: 0;\n\
-  position: absolute;\n\
-  text-align: center;\n\
-}\n\
-.qr-preview > label > input {\n\
-  margin: 0;\n\
-}\n\
-#add-post {\n\
-  cursor: pointer;\n\
-  font-size: 2em;\n\
-  position: absolute;\n\
-  bottom: 20px;\n\
-  right: 10px;\n\
-  -webkit-transform: translateY(-50%);\n\
-  transform: translateY(-50%);\n\
-}\n\
-.textarea {\n\
-  position: relative;\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-}\n\
-#char-count {\n\
-  color: #000;\n\
-  background: hsla(0, 0%, 100%, .5);\n\
-  font-size: 8pt;\n\
-  position: absolute;\n\
-  bottom: 1px;\n\
-  right: 1px;\n\
-  pointer-events: none;\n\
-}\n\
-#char-count.warning {\n\
-  color: red;\n\
-}\n\
-#split-post {\n\
-  font-size: 8pt;\n\
-  position: absolute;\n\
-  bottom: 2px;\n\
-  left: 2px;\n\
-  cursor: pointer;\n\
-}\n\
-/* Menu */\n\
-.menu-button:not(.fa-bars) {\n\
-  display: inline-block;\n\
-  position: relative;\n\
-  cursor: pointer;\n\
-}\n\
-#header-bar .menu-button i {\n\
-  border-top:   6px solid;\n\
-  border-right: 4px solid transparent;\n\
-  border-left:  4px solid transparent;\n\
-  display: inline-block;\n\
-  margin: 2px;\n\
-  vertical-align: middle;\n\
-}\n\
-.postInfo > .menu-button,\n\
-#thread-watcher .menu-button {\n\
-  width: 18px;\n\
-  height: 15px;\n\
-  text-align: center;\n\
-}\n\
-#menu {\n\
-  position: fixed;\n\
-  outline: none;\n\
-  font-weight: normal;\n\
-}\n\
-#menu, .submenu {\n\
-  border-radius: 3px;\n\
-  padding-top: 1px;\n\
-  padding-bottom: 3px;\n\
-}\n\
-.entry {\n\
-  cursor: pointer;\n\
-  display: block;\n\
-  outline: none;\n\
-  padding: 2px 10px;\n\
-  position: relative;\n\
-  text-decoration: none;\n\
-  white-space: nowrap;\n\
-  min-width: 70px;\n\
-  text-align: left;\n\
-  text-shadow: none;\n\
-  font-size: 10pt;\n\
-}\n\
-.left>.entry.has-submenu {\n\
-  padding-right: 17px !important;\n\
-}\n\
-.entry input[type=\"checkbox\"],\n\
-.entry input[type=\"radio\"] {\n\
-  margin: 0px;\n\
-  position: relative;\n\
-  top: 2px;\n\
-}\n\
-.entry input[type=\"number\"] {\n\
-  width: 4.5em;\n\
-}\n\
-.entry.has-shortcut-text {\n\
-  display: flex;\n\
-  justify-content: space-between;\n\
-  align-items: center;\n\
-}\n\
-.entry .shortcut-text {\n\
-  opacity: 0.5;\n\
-  font-size: 70%;\n\
-  margin-left: 5px;\n\
-}\n\
-.has-submenu::after {\n\
-  content: \"\";\n\
-  border-left: .5em solid;\n\
-  border-top: .3em solid transparent;\n\
-  border-bottom: .3em solid transparent;\n\
-  display: inline-block;\n\
-  margin: .3em;\n\
-  position: absolute;\n\
-  right: 3px;\n\
-}\n\
-.left .has-submenu::after {\n\
-  border-left: 0;\n\
-  border-right: .5em solid;\n\
-}\n\
-.submenu {\n\
-  display: none;\n\
-  position: absolute;\n\
-  left: 100%;\n\
-  top: -1px;\n\
-  margin-left: 0px;\n\
-  margin-top: -2px;\n\
-}\n\
-.focused > .submenu {\n\
-  display: block;\n\
-}\n\
-.imp-exp-result {\n\
-  position: absolute;\n\
-  text-align: center;\n\
-  margin: auto;\n\
-  right: 0px;\n\
-  left: 0px;\n\
-  width: 200px;\n\
-}\n\
-/* Custom Board Titles */\n\
-.boardTitle, .boardSubtitle {\n\
-  white-space: pre-line;\n\
-}\n\
-.boardTitle[contenteditable=\"true\"],\n\
-.boardSubtitle[contenteditable=\"true\"] {\n\
-  cursor: text !important;\n\
-}\n\
-/* Embedding */\n\
-.embedder:not(.embedded) > span {\n\
-  display: none;\n\
-}\n\
-#embedding {\n\
-  padding: 1px 4px 1px 4px;\n\
-  position: fixed;\n\
-}\n\
-#embedding.empty {\n\
-  display: none;\n\
-}\n\
-#embedding > div:first-child {\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-}\n\
-#embedding .move {\n\
-  -webkit-flex: 1;\n\
-  flex: 1;\n\
-}\n\
-#embedding .jump {\n\
-  margin: -1px 4px;\n\
-  text-decoration: none;\n\
-}\n\
-/* Gallery */\n\
-#a-gallery {\n\
-  position: fixed;\n\
-  top: 0;\n\
-  bottom: 0;\n\
-  left: 0;\n\
-  right: 0;\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-flex-direction: row;\n\
-  flex-direction: row;\n\
-  background: rgba(0,0,0,0.7);\n\
-}\n\
-.gal-viewport {\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-align-items: stretch;\n\
-  align-items: stretch;\n\
-  -webkit-flex-direction: row;\n\
-  flex-direction: row;\n\
-  -webkit-flex: 1 1 auto;\n\
-  flex: 1 1 auto;\n\
-  overflow: hidden;\n\
-}\n\
-.gal-thumbnails {\n\
-  -webkit-flex: 0 0 150px;\n\
-  flex: 0 0 150px;\n\
-  overflow-y: auto;\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-flex-direction: column;\n\
-  flex-direction: column;\n\
-  -webkit-align-items: stretch;\n\
-  align-items: stretch;\n\
-  text-align: center;\n\
-  background: rgba(0,0,0,.5);\n\
-  border-left: 1px solid #222;\n\
-}\n\
-.gal-hide-thumbnails .gal-thumbnails {\n\
-  display: none;\n\
-}\n\
-.gal-thumb img,\n\
-.gal-thumb video {\n\
-  max-width: 125px;\n\
-  max-height: 125px;\n\
-  height: auto;\n\
-  width: auto;\n\
-}\n\
-.gal-thumb {\n\
-  -webkit-flex: 0 0 auto;\n\
-  flex: 0 0 auto;\n\
-  padding: 3px;\n\
-  line-height: 0;\n\
-  transition: background .2s linear;\n\
-}\n\
-.gal-highlight {\n\
-  background: rgba(0, 190, 255,.8);\n\
-}\n\
-.gal-prev {\n\
-  border-right: 1px solid #222;\n\
-}\n\
-.gal-next {\n\
-  border-left: 1px solid #222;\n\
-}\n\
-.gal-prev,\n\
-.gal-next {\n\
-  -webkit-flex: 0 0 20px;\n\
-  flex: 0 0 20px;\n\
-  position: relative;\n\
-  cursor: pointer;\n\
-  opacity: 0.7;\n\
-  background-color: rgba(0, 0, 0, 0.3);\n\
-}\n\
-.gal-prev:hover,\n\
-.gal-next:hover {\n\
-  opacity: 1;\n\
-}\n\
-.gal-prev::after,\n\
-.gal-next::after {\n\
-  position: absolute;\n\
-  top: 48.6%;\n\
-  -webkit-transform: translateY(-50%);\n\
-  transform: translateY(-50%);\n\
-  display: inline-block;\n\
-  border-top: 11px solid transparent;\n\
-  border-bottom: 11px solid transparent;\n\
-  content: \"\";\n\
-}\n\
-.gal-prev::after {\n\
-  border-right: 12px solid #fff;\n\
-  right: 5px;\n\
-}\n\
-.gal-next::after {\n\
-  border-left: 12px solid #fff;\n\
-  right: 3px;\n\
-}\n\
-.gal-image {\n\
-  -webkit-flex: 1 0 auto;\n\
-  flex: 1 0 auto;\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-align-items: flex-start;\n\
-  align-items: flex-start;\n\
-  -webkit-justify-content: space-around;\n\
-  justify-content: space-around;\n\
-  overflow: hidden;\n\
-  /* Flex > Non-Flex child max-width and overflow fix (Firefox only?) */\n\
-  width: 1%;\n\
-}\n\
-:root:not(.gal-fit-height):not(.gal-pdf) .gal-image {\n\
-  overflow-y: scroll !important;\n\
-}\n\
-:root:not(.gal-fit-width):not(.gal-pdf) .gal-image {\n\
-  overflow-x: scroll !important;\n\
-}\n\
-.gal-image a {\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-align-items: flex-start;\n\
-  align-items: flex-start;\n\
-  margin: auto;\n\
-  line-height: 0;\n\
-  max-width: 100%;\n\
-}\n\
-:root.gal-pdf .gal-image a {\n\
-  width: 100%;\n\
-  height: 100%;\n\
-}\n\
-.gal-image img,\n\
-.gal-image video {\n\
-  -webkit-flex: none;\n\
-  flex: none;\n\
-}\n\
-.gal-fit-width .gal-image img,\n\
-.gal-fit-width .gal-image video {\n\
-  max-width: 100%;\n\
-}\n\
-.gal-fit-height .gal-image img,\n\
-.gal-fit-height .gal-image video {\n\
-  /* XXX https://code.google.com/p/chromium/issues/detail?id=168840, https://bugs.webkit.org/show_bug.cgi?id=94158 */\n\
-  max-height: 95vh;\n\
-  max-height: calc(100vh - 25px);\n\
-}\n\
-.gal-image iframe {\n\
-  width: 100%;\n\
-  height: 100%;\n\
-}\n\
-.gal-buttons {\n\
-  font-size: 2em;\n\
-  margin-right: 3px;\n\
-  padding-left: 7px;\n\
-  padding-right: 7px;\n\
-  top: 5px;\n\
-}\n\
-:root.gal-pdf .gal-buttons {\n\
-  top: 40px;\n\
-  background: rgba(0,0,0,0.6) !important;\n\
-  border-radius: 3px;\n\
-}\n\
-.gal-buttons a {\n\
-  color: #ffffff;\n\
-  text-shadow: 0px 0px 1px #000000;\n\
-}\n\
-.gal-buttons i {\n\
-  display: inline-block;\n\
-  margin: 2px;\n\
-  position: relative;\n\
-}\n\
-.gal-start i {\n\
-  border-left:   10px solid;\n\
-  border-top:    6px solid transparent;\n\
-  border-bottom: 6px solid transparent;\n\
-  bottom: 1px;\n\
-}\n\
-.gal-stop i {\n\
-  border: 5px solid;\n\
-  bottom: 2px;\n\
-}\n\
-.gal-buttons.gal-playing > .gal-start,\n\
-.gal-buttons:not(.gal-playing) > .gal-stop {\n\
-  display: none;\n\
-}\n\
-.gal-buttons .menu-button i {\n\
-  border-top:   10px solid;\n\
-  border-right:  6px solid transparent;\n\
-  border-left:   6px solid transparent;\n\
-  bottom: 2px;\n\
-  vertical-align: baseline;\n\
-}\n\
-.gal-labels {\n\
-  position: fixed;\n\
-  bottom: 6px;\n\
-  display: -webkit-flex;\n\
-  display: flex;\n\
-  -webkit-flex-direction: column;\n\
-  flex-direction: column;\n\
-  -webkit-align-items: flex-end;\n\
-  align-items: flex-end;\n\
-}\n\
-:root:not(.show-sauce) .gal-sauce {\n\
-  display: none;\n\
-}\n\
-.gal-name,\n\
-.gal-count,\n\
-.gal-sauce {\n\
-  background: rgba(0,0,0,0.6) !important;\n\
-  border-radius: 3px;\n\
-  padding: 1px 5px 2px 5px;\n\
-  margin-top: 3px;\n\
-  color: #ffffff !important;\n\
-  text-decoration: none !important;\n\
-}\n\
-.gal-sauce a {\n\
-  color: #ffffff !important;\n\
-}\n\
-.gal-name:hover,\n\
-.gal-buttons a:hover,\n\
-.gal-sauce a:hover {\n\
-  color: rgb(95, 95, 101) !important;\n\
-}\n\
-:root.gal-pdf .gal-buttons a:hover {\n\
-  color: rgb(204, 204, 204) !important;\n\
-}\n\
-.gal-buttons,\n\
-.gal-labels {\n\
-  position: fixed;\n\
-  right: 195px;\n\
-}\n\
-.gal-hide-thumbnails .gal-buttons,\n\
-.gal-hide-thumbnails .gal-labels {\n\
-  right: 44px;\n\
-}\n\
-:root:not(.gal-fit-width):not(.gal-pdf) .gal-labels {\n\
-  bottom: 23px !important;\n\
-}\n\
-:root.gal-fit-height:not(.gal-pdf):not(.gal-hide-thumbnails) .gal-buttons,\n\
-:root.gal-fit-height:not(.gal-pdf):not(.gal-hide-thumbnails) .gal-labels {\n\
-  right: 178px !important;\n\
-}\n\
-:root.gal-hide-thumbnails.gal-fit-height:not(.gal-pdf) .gal-buttons,\n\
-:root.gal-hide-thumbnails.gal-fit-height:not(.gal-pdf) .gal-labels {\n\
-  right: 28px !important;\n\
-}\n\
-:root.gallery-open.fixed #header-bar:not(.autohide),\n\
-:root.gallery-open.fixed #header-bar:not(.autohide) #shortcuts .fa::before {\n\
-  visibility: hidden;\n\
-}\n\
-/* Mod Contact Links */\n\
-.contact-links {\n\
-  margin-left: 2px;\n\
-}\n\
-.move-note > a {\n\
-  text-decoration: underline;\n\
-}\n\
-.invisible {\n\
-  font-size: 0;\n\
-}\n\
-/* PostJumper */\n\
-.postJumper > .prev,\n\
-.postJumper > .next {\n\
-  font-size: 120%;\n\
-}\n\
-/* PSA */\n\
-.fcx-announcement {\n\
-  text-align: center;\n\
-}\n\
-.fcx-announcement a {\n\
-  text-decoration: underline;\n\
-}\n\
-/* General */\n\
+:root.highlight-own .yourPost$site$highlightable$op: :after,\n\
+  :root.highlight-you .quotesYou$site$highlightable$op: :after,\n\
+    .filter-highlight$site$highlightable$op: :after {\n\
+      content: \"\";\n\
+      display: block;\n\
+      clear: both;\n\
+    }\n\
+    :root:not(.werkTyme) .catalog-thread.filter-highlight .catalog-thumb,\n\
+    :root.werkTyme .catalog-thread.filter-highlight:not(:hover),\n\
+    :root.werkTyme:not(.catalog-hover-expand) .catalog-thread.filter-highlight,\n\
+    :root.werkTyme.catalog-hover-expand .catalog-thread.filter-highlight>.catalog-container:hover>.catalog-post,\n\
+    :root.catalog $site$catalog$thread.filter-highlight$site$highlightable$catalog {\n\
+      box-shadow: 0 0 3px 3px rgba(255, 0, 0, .5);\n\
+    }\n\
+    :root:not(.werkTyme) .catalog-thread.watched .catalog-thumb,\n\
+    :root:root.werkTyme .catalog-thread.watched:not(:hover),\n\
+    :root:root.werkTyme:not(.catalog-hover-expand) .catalog-thread.watched,\n\
+    :root.werkTyme.catalog-hover-expand .catalog-thread.watched>.catalog-container:hover>.catalog-post {\n\
+      border: 2px solid rgba(255, 0, 0, .75);\n\
+    }\n\
+    /* Spoiler text */\n\
+    :root.reveal-spoilers $site$spoiler,\n\
+    :root.reveal-spoilers $site$spoiler >a {\n\
+      color: white !important;\n\
+    }\n\
+    :root.reveal-spoilers .removed-spoiler::before {\n\
+      content: \"[spoiler]\";\n\
+    }\n\
+    :root.reveal-spoilers .removed-spoiler::after {\n\
+      content: \"[/spoiler]\";\n\
+    }\n\
+    /* Thread & Reply Hiding */\n\
+    .hide-thread-button,\n\
+    .hide-reply-button {\n\
+      float: left;\n\
+      margin-right: 4px;\n\
+      padding: 2px;\n\
+    }\n\
+    $site$infoRoot a.hide-reply-button {\n\
+      margin-right: 6px;\n\
+      padding: 0;\n\
+    }\n\
+    .replacedSideArrows {\n\
+      float: left;\n\
+    }\n\
+    .hide-thread-button:not(:hover),\n\
+    .hide-reply-button:not(:hover) {\n\
+      opacity: 0.4;\n\
+    }\n\
+    .threadContainer .hide-reply-button {\n\
+      margin-left: 2px !important;\n\
+      position: relative;\n\
+      left: 1px;\n\
+    }\n\
+    .hide-thread-button {\n\
+      margin-top: -1px;\n\
+      width: 11px;\n\
+    }\n\
+    .stub~ :not(.threadDivider) {\n\
+      display: none !important;\n\
+    }\n\
+    .stub input {\n\
+      display: inline-block;\n\
+    }\n\
+    $site$thread[hidden]+hr {\n\
+      display: none;\n\
+    }\n\
+    :root.reply-hide $site$sideArrows {\n\
+      display: none;\n\
+    }\n\
+    :root.sw-yotsuba.thread-hide .party-hat {\n\
+      left: 19px;\n\
+    }\n\
+    /* Anonymize */\n\
+    :root.anonymize $site$info$name,\n\
+    :root.sw-yotsuba.anonymize .post-author:not([class*=capcode]) {\n\
+      font-size: 0;\n\
+    }\n\
+    :root.anonymize $site$info$tripcode,\n\
+    :root.sw-yotsuba.anonymize .n-pu {\n\
+      display: none;\n\
+    }\n\
+    :root.anonymize $site$info$name: :before,\n\
+      :root.sw-yotsuba.anonymize .post-author:not([class*=capcode])::before {\n\
+      content: \"Anonymous\";\n\
+      font-size: 10pt;\n\
+    }\n\
+    :root.sw-yotsuba.anonymize .flashListing .name::before,\n\
+    :root.sw-yotsuba.anonymize .post-last>.post-author:not([class*=capcode])::before {\n\
+      font-size: 9pt;\n\
+    }\n\
+    /* QR */\n\
+    :root.hide-original-post-form #togglePostFormLink,\n\
+    #qr.autohide:not(.focus):not(:hover):not(:active)>form,\n\
+    :root.thread-view #qr:not(.show-new-thread-option) select[data-name=\"thread\"],\n\
+    #file-n-submit:not(.has-file) #qr-filerm {\n\
+      display: none;\n\
+    }\n\
+    :root.hide-original-post-form #postForm {\n\
+      display: none !important;\n\
+    }\n\
+    #qr select,\n\
+    #qr-filename-container>a,\n\
+    .remove,\n\
+    .captcha-img {\n\
+      cursor: pointer;\n\
+    }\n\
+    #qr {\n\
+      position: fixed;\n\
+      padding: 1px;\n\
+      border: 1px solid transparent;\n\
+      min-width: 300px;\n\
+      border-radius: 3px 3px 0 0;\n\
+    }\n\
+    #qr>form {\n\
+      /* XXX https://code.google.com/p/chromium/issues/detail?id=168840, https://bugs.webkit.org/show_bug.cgi?id=94158 */\n\
+      max-height: 85vh;\n\
+      max-height: calc(100vh - 75px);\n\
+      overflow-y: auto;\n\
+      overflow-x: hidden;\n\
+    }\n\
+    #qrtab {\n\
+      border-radius: 3px 3px 0 0;\n\
+    }\n\
+    #qrtab {\n\
+      margin-bottom: 1px;\n\
+    }\n\
+    #qr .close {\n\
+      float: right;\n\
+      padding: 0 3px;\n\
+    }\n\
+    .qr-link-container {\n\
+      text-align: center;\n\
+      margin: 16px 0;\n\
+    }\n\
+    .qr-link-container-bottom {\n\
+      width: 200px;\n\
+      position: absolute;\n\
+      left: -100px;\n\
+      margin-left: 50%;\n\
+      text-align: center;\n\
+    }\n\
+    .qr-link {\n\
+      border-radius: 3px;\n\
+      padding: 6px 10px 5px;\n\
+      font-weight: bold;\n\
+      vertical-align: middle;\n\
+      border-style: solid;\n\
+      border-width: 1px;\n\
+      font-size: 10pt;\n\
+    }\n\
+    .qr-link-container+#togglePostFormLink {\n\
+      font-size: 10pt;\n\
+      font-weight: normal;\n\
+      margin: -8px 0 3.5px;\n\
+    }\n\
+    .persona {\n\
+      width: 100%;\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-flex-direction: row;\n\
+      flex-direction: row;\n\
+    }\n\
+    .persona .field {\n\
+      -webkit-flex: 1;\n\
+      flex: 1;\n\
+      width: 0;\n\
+    }\n\
+    #qr.forced-anon input[data-name=\"name\"]:not(.force-show),\n\
+    #qr.forced-anon input[data-name=\"sub\"]:not(.force-show),\n\
+    #qr.reply-to-thread input[data-name=\"sub\"]:not(.force-show),\n\
+    body:not(.board_f) #qr select[name=\"filetag\"],\n\
+    #qr.reply-to-thread select[name=\"filetag\"],\n\
+    #qr:not(.has-sjis) #sjis-toggle,\n\
+    #qr:not(.has-math) #tex-preview-button,\n\
+    #qr.tex-preview .textarea> :not(#tex-preview),\n\
+    #qr:not(.tex-preview) #tex-preview {\n\
+      display: none;\n\
+    }\n\
+    .persona button {\n\
+      -webkit-flex: 0 0 23px;\n\
+      flex: 0 0 23px;\n\
+      -webkit-align-self: stretch;\n\
+      align-self: stretch;\n\
+      border: 1px solid #BBB;\n\
+      padding: 0;\n\
+      background: linear-gradient(to bottom, #F8F8F8, #DCDCDC) no-repeat;\n\
+      color: #000;\n\
+    }\n\
+    #qr.sjis-preview #sjis-toggle,\n\
+    #qr.tex-preview #tex-preview-button {\n\
+      background: #DCDCDC;\n\
+    }\n\
+    #sjis-toggle,\n\
+    #qr.sjis-preview textarea.field {\n\
+      font-family: \"IPAMonaPGothic\", \"Mona\", \"MS PGothic\", monospace;\n\
+      font-size: 16px;\n\
+      line-height: 17px;\n\
+    }\n\
+    #tex-preview-button {\n\
+      font-size: 10px;\n\
+    }\n\
+    #tex-preview {\n\
+      white-space: pre-line;\n\
+    }\n\
+    #qr textarea.field {\n\
+      height: 14.8em;\n\
+      min-height: 9em;\n\
+    }\n\
+    #qr.has-captcha textarea.field {\n\
+      height: 9em;\n\
+    }\n\
+    input.field.tripped:not(:hover):not(:focus) {\n\
+      color: transparent !important;\n\
+      text-shadow: none !important;\n\
+    }\n\
+    #qr textarea {\n\
+      min-width: 300px;\n\
+      resize: both;\n\
+    }\n\
+    .field {\n\
+      -moz-box-sizing: border-box;\n\
+      box-sizing: border-box;\n\
+      margin: 0px;\n\
+      padding: 2px 4px 3px;\n\
+    }\n\
+    #qr label input[type=\"checkbox\"] {\n\
+      position: relative;\n\
+      top: 2px;\n\
+    }\n\
+    /* Recaptcha v2 */\n\
+    #qr .captcha-root {\n\
+      position: relative;\n\
+    }\n\
+    #qr .captcha-container>div {\n\
+      margin: auto;\n\
+      width: 304px;\n\
+    }\n\
+    /* XXX scrollable with scroll bar hidden; prevents scroll on space press */\n\
+    :root.ua-blink #qr .captcha-container>div,\n\
+    :root.ua-edge #qr .captcha-container>div {\n\
+      overflow: hidden;\n\
+    }\n\
+    :root.ua-blink #qr .captcha-container>div>div:first-of-type,\n\
+    :root.ua-edge #qr .captcha-container>div>div:first-of-type {\n\
+      overflow-y: scroll;\n\
+      overflow-x: hidden;\n\
+      padding-right: 30px;\n\
+      height: 99%;\n\
+      width: 100%;\n\
+    }\n\
+    #qr .captcha-counter {\n\
+      display: block;\n\
+      width: 100%;\n\
+      text-align: center;\n\
+      pointer-events: none;\n\
+    }\n\
+    #qr.captcha-open .captcha-counter {\n\
+      position: absolute;\n\
+      bottom: 3px;\n\
+    }\n\
+    #qr .captcha-counter>a {\n\
+      pointer-events: auto;\n\
+      display: inline-block;\n\
+      /* XXX https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8851747/ */\n\
+    }\n\
+    #qr:not(.captcha-open) .captcha-counter>a {\n\
+      display: block;\n\
+      width: 100%;\n\
+    }\n\
+    #qr.captcha-v2 #qr-captcha-iframe {\n\
+      width: 302px;\n\
+      height: 423px;\n\
+      border: 0;\n\
+      display: block;\n\
+      margin: auto;\n\
+    }\n\
+    .goog-bubble-content {\n\
+      max-width: 100vw;\n\
+      max-height: 100vh;\n\
+      overflow: auto;\n\
+    }\n\
+    .goog-bubble-content iframe {\n\
+      position: static !important;\n\
+    }\n\
+    /* File Input, Submit Button, Oekaki */\n\
+    #file-n-submit,\n\
+    #qr .oekaki {\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-align-items: stretch;\n\
+      align-items: stretch;\n\
+      height: 25px;\n\
+      margin-top: 1px;\n\
+    }\n\
+    #file-n-submit>input,\n\
+    #qr-draw-button {\n\
+      background: linear-gradient(to bottom, #F8F8F8, #DCDCDC) no-repeat;\n\
+      border: 1px solid #BBB;\n\
+      border-radius: 2px;\n\
+      height: 100%;\n\
+    }\n\
+    #qr-file-button,\n\
+    #qr-draw-button {\n\
+      width: 15%;\n\
+    }\n\
+    #file-n-submit input[type=\"submit\"] {\n\
+      width: 25%;\n\
+    }\n\
+    #qr-filename-container {\n\
+      -webkit-flex: 1 1 auto;\n\
+      flex: 1 1 auto;\n\
+      width: 0;\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-align-items: center;\n\
+      align-items: center;\n\
+      position: relative;\n\
+      padding: 1px;\n\
+    }\n\
+    input#qr-filename {\n\
+      border: none !important;\n\
+      background: none !important;\n\
+      outline: none;\n\
+    }\n\
+    #qr-filename,\n\
+    .has-file #qr-no-file {\n\
+      display: none;\n\
+    }\n\
+    #qr-no-file,\n\
+    .has-file #qr-filename {\n\
+      -webkit-flex: 1 1 auto;\n\
+      flex: 1 1 auto;\n\
+      width: 0px;\n\
+      /* XXX Fixes filename not shrinking to allow space for buttons in Edge */\n\
+      display: inline-block;\n\
+      padding: 0;\n\
+      padding-left: 3px;\n\
+      overflow: hidden;\n\
+      text-overflow: ellipsis;\n\
+      white-space: nowrap;\n\
+    }\n\
+    #qr-no-file {\n\
+      color: #AAA;\n\
+    }\n\
+    #qr .oekaki.has-file {\n\
+      display: none;\n\
+    }\n\
+    #qr .oekaki>label {\n\
+      -webkit-flex: 1 1 auto;\n\
+      flex: 1 1 auto;\n\
+      width: 0;\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-align-items: center;\n\
+      align-items: center;\n\
+      height: 100%;\n\
+    }\n\
+    #qr .oekaki>label>span {\n\
+      margin: 0 3px;\n\
+    }\n\
+    #qr .oekaki>label>input {\n\
+      -webkit-flex: 1 1 auto;\n\
+      flex: 1 1 auto;\n\
+      width: 0;\n\
+      height: 100%;\n\
+    }\n\
+    #qr .oekaki-bg {\n\
+      position: relative;\n\
+      display: inline-block;\n\
+      height: 100%;\n\
+      width: 10%;\n\
+      margin-left: 3px;\n\
+    }\n\
+    #qr .oekaki-bg>* {\n\
+      position: absolute;\n\
+      top: 0;\n\
+      left: 0;\n\
+      margin: 0;\n\
+    }\n\
+    #qr .oekaki-bg> :not([name=\"oekaki-bgcolor\"]) {\n\
+      z-index: 1;\n\
+    }\n\
+    #qr [name=\"oekaki-bgcolor\"] {\n\
+      height: 100%;\n\
+      width: 100%;\n\
+      border: none;\n\
+      padding: 0;\n\
+    }\n\
+    #qr [name=\"oekaki-bg\"]:not(:checked)~[name=\"oekaki-bgcolor\"] {\n\
+      visibility: hidden;\n\
+    }\n\
+    #qr input[type=\"file\"] {\n\
+      visibility: hidden;\n\
+      position: absolute;\n\
+    }\n\
+    /* Spoiler Checkbox, QR Icons */\n\
+    #qr-filename-container>label,\n\
+    #qr-filename-container>a {\n\
+      -webkit-flex: none;\n\
+      flex: none;\n\
+      margin: 0;\n\
+      margin-right: 3px;\n\
+    }\n\
+    #qr:not(.has-spoiler) #qr-spoiler-label,\n\
+    #file-n-submit:not(.has-file) #qr-spoiler-label,\n\
+    .has-file #paste-area,\n\
+    .has-file #url-button,\n\
+    #file-n-submit:not(.custom-cooldown) #custom-cooldown-button {\n\
+      display: none;\n\
+    }\n\
+    #qr-filename-container>label {\n\
+      position: relative;\n\
+    }\n\
+    #qr-filename-container input[type=\"checkbox\"] {\n\
+      margin: 0;\n\
+    }\n\
+    .checkbox-letter {\n\
+      font-size: 13px;\n\
+      font-weight: bold;\n\
+    }\n\
+    #qr-filename-container label:not(:hover)>input[type=\"checkbox\"]:not(:focus):not(:checked),\n\
+    #qr-filename-container label:not(:hover)>input[type=\"checkbox\"]:not(:focus):not(:checked)~ :not(.checkbox-letter),\n\
+    #qr-filename-container label:hover>.checkbox-letter,\n\
+    input[type=\"checkbox\"]:focus~.checkbox-letter,\n\
+    input[type=\"checkbox\"]:checked~.checkbox-letter {\n\
+      /* not displayed but still focusable */\n\
+      position: absolute;\n\
+      opacity: 0;\n\
+      pointer-events: none;\n\
+    }\n\
+    .checkbox-letter,\n\
+    #paste-area,\n\
+    #url-button,\n\
+    #custom-cooldown-button,\n\
+    #dump-button {\n\
+      opacity: 0.6;\n\
+    }\n\
+    #paste-area {\n\
+      font-size: 0;\n\
+    }\n\
+    #paste-area:focus {\n\
+      opacity: 1;\n\
+    }\n\
+    #custom-cooldown-button.disabled {\n\
+      opacity: 0.27;\n\
+    }\n\
+    /* Thread and Flash Tag Select */\n\
+    #qr select {\n\
+      background: white;\n\
+      border: 1px solid #CCC;\n\
+    }\n\
+    #qr select[data-name=\"thread\"] {\n\
+      float: right;\n\
+    }\n\
+    #qr>form>select {\n\
+      margin-top: 1px;\n\
+    }\n\
+    /* Dumping UI */\n\
+    .dump #dump-list-container {\n\
+      display: block;\n\
+    }\n\
+    #dump-list-container {\n\
+      display: none;\n\
+      position: relative;\n\
+      overflow-y: hidden;\n\
+      margin-top: 1px;\n\
+    }\n\
+    #dump-list {\n\
+      overflow-x: auto;\n\
+      overflow-y: auto;\n\
+      white-space: nowrap;\n\
+      width: 248px;\n\
+      max-height: 248px;\n\
+      min-height: 90px;\n\
+      max-width: 100%;\n\
+      min-width: 100%;\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-flex-wrap: wrap;\n\
+      flex-wrap: wrap;\n\
+    }\n\
+    #dump-list:hover {\n\
+      overflow-x: auto;\n\
+    }\n\
+    .qr-preview {\n\
+      -moz-box-sizing: border-box;\n\
+      box-sizing: border-box;\n\
+      counter-increment: thumbnails;\n\
+      cursor: move;\n\
+      display: inline-block;\n\
+      height: 90px;\n\
+      width: 90px;\n\
+      padding: 2px;\n\
+      opacity: .5;\n\
+      overflow: hidden;\n\
+      position: relative;\n\
+      text-shadow: 0 0 2px #000;\n\
+      -webkit-transition: opacity .25s ease-in-out, -webkit-transform .25s ease-in-out;\n\
+      transition: opacity .25s ease-in-out, transform .25s ease-in-out, -webkit-transform .25s ease-in-out;\n\
+      vertical-align: top;\n\
+      background-size: cover;\n\
+      -webkit-flex: none;\n\
+      flex: none;\n\
+    }\n\
+    .qr-preview:hover,\n\
+    .qr-preview:focus {\n\
+      opacity: .9;\n\
+    }\n\
+    .qr-preview::before {\n\
+      content: counter(thumbnails);\n\
+      color: #fff;\n\
+      position: absolute;\n\
+      top: 3px;\n\
+      right: 3px;\n\
+      text-shadow: 0 0 3px #000, 0 0 8px #000;\n\
+    }\n\
+    .qr-preview#selected {\n\
+      opacity: 1;\n\
+    }\n\
+    .qr-preview.drag {\n\
+      box-shadow: 0 0 10px rgba(0, 0, 0, .5);\n\
+      -webkit-transform: scale(.8);\n\
+      transform: scale(.8);\n\
+    }\n\
+    .qr-preview.over {\n\
+      border-color: #fff;\n\
+      -webkit-transform: scale(1.1);\n\
+      transform: scale(1.1);\n\
+      opacity: 0.9;\n\
+      z-index: 10;\n\
+    }\n\
+    .qr-preview>span {\n\
+      color: #fff;\n\
+    }\n\
+    .remove {\n\
+      background: none;\n\
+      color: #e00;\n\
+      padding: 1px;\n\
+    }\n\
+    a:only-of-type>.remove {\n\
+      display: none;\n\
+    }\n\
+    .remove:hover::after {\n\
+      content: \" Remove\";\n\
+    }\n\
+    .qr-preview:not(.has-file) label,\n\
+    #qr:not(.has-spoiler) .qr-preview-spoiler {\n\
+      display: none;\n\
+    }\n\
+    .qr-preview>label {\n\
+      background: rgba(0, 0, 0, .5);\n\
+      color: #fff;\n\
+      right: 0;\n\
+      bottom: 0;\n\
+      left: 0;\n\
+      position: absolute;\n\
+      text-align: center;\n\
+    }\n\
+    .qr-preview>label>input {\n\
+      margin: 0;\n\
+    }\n\
+    #add-post {\n\
+      cursor: pointer;\n\
+      font-size: 2em;\n\
+      position: absolute;\n\
+      bottom: 20px;\n\
+      right: 10px;\n\
+      -webkit-transform: translateY(-50%);\n\
+      transform: translateY(-50%);\n\
+    }\n\
+    .textarea {\n\
+      position: relative;\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+    }\n\
+    #char-count {\n\
+      color: #000;\n\
+      background: hsla(0, 0%, 100%, .5);\n\
+      font-size: 8pt;\n\
+      position: absolute;\n\
+      bottom: 1px;\n\
+      right: 1px;\n\
+      pointer-events: none;\n\
+    }\n\
+    #char-count.warning {\n\
+      color: red;\n\
+    }\n\
+    #split-post {\n\
+      font-size: 8pt;\n\
+      position: absolute;\n\
+      bottom: 2px;\n\
+      left: 2px;\n\
+      cursor: pointer;\n\
+    }\n\
+    /* Menu */\n\
+    .menu-button:not(.fa-bars) {\n\
+      display: inline-block;\n\
+      position: relative;\n\
+      cursor: pointer;\n\
+    }\n\
+    #header-bar .menu-button i {\n\
+      border-top: 6px solid;\n\
+      border-right: 4px solid transparent;\n\
+      border-left: 4px solid transparent;\n\
+      display: inline-block;\n\
+      margin: 2px;\n\
+      vertical-align: middle;\n\
+    }\n\
+    .postInfo>.menu-button,\n\
+    #thread-watcher .menu-button {\n\
+      width: 18px;\n\
+      height: 15px;\n\
+      text-align: center;\n\
+    }\n\
+    #menu {\n\
+      position: fixed;\n\
+      outline: none;\n\
+      font-weight: normal;\n\
+    }\n\
+    #menu,\n\
+    .submenu {\n\
+      border-radius: 3px;\n\
+      padding-top: 1px;\n\
+      padding-bottom: 3px;\n\
+    }\n\
+    .entry {\n\
+      cursor: pointer;\n\
+      display: block;\n\
+      outline: none;\n\
+      padding: 2px 10px;\n\
+      position: relative;\n\
+      text-decoration: none;\n\
+      white-space: nowrap;\n\
+      min-width: 70px;\n\
+      text-align: left;\n\
+      text-shadow: none;\n\
+      font-size: 10pt;\n\
+    }\n\
+    .left>.entry.has-submenu {\n\
+      padding-right: 17px !important;\n\
+    }\n\
+    .entry input[type=\"checkbox\"],\n\
+    .entry input[type=\"radio\"] {\n\
+      margin: 0px;\n\
+      position: relative;\n\
+      top: 2px;\n\
+    }\n\
+    .entry input[type=\"number\"] {\n\
+      width: 4.5em;\n\
+    }\n\
+    .entry.has-shortcut-text {\n\
+      display: flex;\n\
+      justify-content: space-between;\n\
+      align-items: center;\n\
+    }\n\
+    .entry .shortcut-text {\n\
+      opacity: 0.5;\n\
+      font-size: 70%;\n\
+      margin-left: 5px;\n\
+    }\n\
+    .has-submenu::after {\n\
+      content: \"\";\n\
+      border-left: .5em solid;\n\
+      border-top: .3em solid transparent;\n\
+      border-bottom: .3em solid transparent;\n\
+      display: inline-block;\n\
+      margin: .3em;\n\
+      position: absolute;\n\
+      right: 3px;\n\
+    }\n\
+    .left .has-submenu::after {\n\
+      border-left: 0;\n\
+      border-right: .5em solid;\n\
+    }\n\
+    .submenu {\n\
+      display: none;\n\
+      position: absolute;\n\
+      left: 100%;\n\
+      top: -1px;\n\
+      margin-left: 0px;\n\
+      margin-top: -2px;\n\
+    }\n\
+    .focused>.submenu {\n\
+      display: block;\n\
+    }\n\
+    .imp-exp-result {\n\
+      position: absolute;\n\
+      text-align: center;\n\
+      margin: auto;\n\
+      right: 0px;\n\
+      left: 0px;\n\
+      width: 200px;\n\
+    }\n\
+    /* Custom Board Titles */\n\
+    .boardTitle,\n\
+    .boardSubtitle {\n\
+      white-space: pre-line;\n\
+    }\n\
+    .boardTitle[contenteditable=\"true\"],\n\
+    .boardSubtitle[contenteditable=\"true\"] {\n\
+      cursor: text !important;\n\
+    }\n\
+    /* Embedding */\n\
+    .embedder:not(.embedded)>span {\n\
+      display: none;\n\
+    }\n\
+    #embedding {\n\
+      padding: 1px 4px 1px 4px;\n\
+      position: fixed;\n\
+    }\n\
+    #embedding.empty {\n\
+      display: none;\n\
+    }\n\
+    #embedding>div:first-child {\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+    }\n\
+    #embedding .move {\n\
+      -webkit-flex: 1;\n\
+      flex: 1;\n\
+    }\n\
+    #embedding .jump {\n\
+      margin: -1px 4px;\n\
+      text-decoration: none;\n\
+    }\n\
+    /* Gallery */\n\
+    #a-gallery {\n\
+      position: fixed;\n\
+      top: 0;\n\
+      bottom: 0;\n\
+      left: 0;\n\
+      right: 0;\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-flex-direction: row;\n\
+      flex-direction: row;\n\
+      background: rgba(0, 0, 0, 0.7);\n\
+    }\n\
+    .gal-viewport {\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-align-items: stretch;\n\
+      align-items: stretch;\n\
+      -webkit-flex-direction: row;\n\
+      flex-direction: row;\n\
+      -webkit-flex: 1 1 auto;\n\
+      flex: 1 1 auto;\n\
+      overflow: hidden;\n\
+    }\n\
+    .gal-thumbnails {\n\
+      -webkit-flex: 0 0 150px;\n\
+      flex: 0 0 150px;\n\
+      overflow-y: auto;\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-flex-direction: column;\n\
+      flex-direction: column;\n\
+      -webkit-align-items: stretch;\n\
+      align-items: stretch;\n\
+      text-align: center;\n\
+      background: rgba(0, 0, 0, .5);\n\
+      border-left: 1px solid #222;\n\
+    }\n\
+    .gal-hide-thumbnails .gal-thumbnails {\n\
+      display: none;\n\
+    }\n\
+    .gal-thumb img,\n\
+    .gal-thumb video {\n\
+      max-width: 125px;\n\
+      max-height: 125px;\n\
+      height: auto;\n\
+      width: auto;\n\
+    }\n\
+    .gal-thumb {\n\
+      -webkit-flex: 0 0 auto;\n\
+      flex: 0 0 auto;\n\
+      padding: 3px;\n\
+      line-height: 0;\n\
+      transition: background .2s linear;\n\
+    }\n\
+    .gal-highlight {\n\
+      background: rgba(0, 190, 255, .8);\n\
+    }\n\
+    .gal-prev {\n\
+      border-right: 1px solid #222;\n\
+    }\n\
+    .gal-next {\n\
+      border-left: 1px solid #222;\n\
+    }\n\
+    .gal-prev,\n\
+    .gal-next {\n\
+      -webkit-flex: 0 0 20px;\n\
+      flex: 0 0 20px;\n\
+      position: relative;\n\
+      cursor: pointer;\n\
+      opacity: 0.7;\n\
+      background-color: rgba(0, 0, 0, 0.3);\n\
+    }\n\
+    .gal-prev:hover,\n\
+    .gal-next:hover {\n\
+      opacity: 1;\n\
+    }\n\
+    .gal-prev::after,\n\
+    .gal-next::after {\n\
+      position: absolute;\n\
+      top: 48.6%;\n\
+      -webkit-transform: translateY(-50%);\n\
+      transform: translateY(-50%);\n\
+      display: inline-block;\n\
+      border-top: 11px solid transparent;\n\
+      border-bottom: 11px solid transparent;\n\
+      content: \"\";\n\
+    }\n\
+    .gal-prev::after {\n\
+      border-right: 12px solid #fff;\n\
+      right: 5px;\n\
+    }\n\
+    .gal-next::after {\n\
+      border-left: 12px solid #fff;\n\
+      right: 3px;\n\
+    }\n\
+    .gal-image {\n\
+      -webkit-flex: 1 0 auto;\n\
+      flex: 1 0 auto;\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-align-items: flex-start;\n\
+      align-items: flex-start;\n\
+      -webkit-justify-content: space-around;\n\
+      justify-content: space-around;\n\
+      overflow: hidden;\n\
+      /* Flex > Non-Flex child max-width and overflow fix (Firefox only?) */\n\
+      width: 1%;\n\
+    }\n\
+    :root:not(.gal-fit-height):not(.gal-pdf) .gal-image {\n\
+      overflow-y: scroll !important;\n\
+    }\n\
+    :root:not(.gal-fit-width):not(.gal-pdf) .gal-image {\n\
+      overflow-x: scroll !important;\n\
+    }\n\
+    .gal-image a {\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-align-items: flex-start;\n\
+      align-items: flex-start;\n\
+      margin: auto;\n\
+      line-height: 0;\n\
+      max-width: 100%;\n\
+    }\n\
+    :root.gal-pdf .gal-image a {\n\
+      width: 100%;\n\
+      height: 100%;\n\
+    }\n\
+    .gal-image img,\n\
+    .gal-image video {\n\
+      -webkit-flex: none;\n\
+      flex: none;\n\
+    }\n\
+    .gal-fit-width .gal-image img,\n\
+    .gal-fit-width .gal-image video {\n\
+      max-width: 100%;\n\
+    }\n\
+    .gal-fit-height .gal-image img,\n\
+    .gal-fit-height .gal-image video {\n\
+      /* XXX https://code.google.com/p/chromium/issues/detail?id=168840, https://bugs.webkit.org/show_bug.cgi?id=94158 */\n\
+      max-height: 95vh;\n\
+      max-height: calc(100vh - 25px);\n\
+    }\n\
+    .gal-image iframe {\n\
+      width: 100%;\n\
+      height: 100%;\n\
+    }\n\
+    .gal-buttons {\n\
+      font-size: 2em;\n\
+      margin-right: 3px;\n\
+      padding-left: 7px;\n\
+      padding-right: 7px;\n\
+      top: 5px;\n\
+    }\n\
+    :root.gal-pdf .gal-buttons {\n\
+      top: 40px;\n\
+      background: rgba(0, 0, 0, 0.6) !important;\n\
+      border-radius: 3px;\n\
+    }\n\
+    .gal-buttons a {\n\
+      color: #ffffff;\n\
+      text-shadow: 0px 0px 1px #000000;\n\
+    }\n\
+    .gal-buttons i {\n\
+      display: inline-block;\n\
+      margin: 2px;\n\
+      position: relative;\n\
+    }\n\
+    .gal-start i {\n\
+      border-left: 10px solid;\n\
+      border-top: 6px solid transparent;\n\
+      border-bottom: 6px solid transparent;\n\
+      bottom: 1px;\n\
+    }\n\
+    .gal-stop i {\n\
+      border: 5px solid;\n\
+      bottom: 2px;\n\
+    }\n\
+    .gal-buttons.gal-playing>.gal-start,\n\
+    .gal-buttons:not(.gal-playing)>.gal-stop {\n\
+      display: none;\n\
+    }\n\
+    .gal-buttons .menu-button i {\n\
+      border-top: 10px solid;\n\
+      border-right: 6px solid transparent;\n\
+      border-left: 6px solid transparent;\n\
+      bottom: 2px;\n\
+      vertical-align: baseline;\n\
+    }\n\
+    .gal-labels {\n\
+      position: fixed;\n\
+      bottom: 6px;\n\
+      display: -webkit-flex;\n\
+      display: flex;\n\
+      -webkit-flex-direction: column;\n\
+      flex-direction: column;\n\
+      -webkit-align-items: flex-end;\n\
+      align-items: flex-end;\n\
+    }\n\
+    :root:not(.show-sauce) .gal-sauce {\n\
+      display: none;\n\
+    }\n\
+    .gal-name,\n\
+    .gal-count,\n\
+    .gal-sauce {\n\
+      background: rgba(0, 0, 0, 0.6) !important;\n\
+      border-radius: 3px;\n\
+      padding: 1px 5px 2px 5px;\n\
+      margin-top: 3px;\n\
+      color: #ffffff !important;\n\
+      text-decoration: none !important;\n\
+    }\n\
+    .gal-sauce a {\n\
+      color: #ffffff !important;\n\
+    }\n\
+    .gal-name:hover,\n\
+    .gal-buttons a:hover,\n\
+    .gal-sauce a:hover {\n\
+      color: rgb(95, 95, 101) !important;\n\
+    }\n\
+    :root.gal-pdf .gal-buttons a:hover {\n\
+      color: rgb(204, 204, 204) !important;\n\
+    }\n\
+    .gal-buttons,\n\
+    .gal-labels {\n\
+      position: fixed;\n\
+      right: 195px;\n\
+    }\n\
+    .gal-hide-thumbnails .gal-buttons,\n\
+    .gal-hide-thumbnails .gal-labels {\n\
+      right: 44px;\n\
+    }\n\
+    :root:not(.gal-fit-width):not(.gal-pdf) .gal-labels {\n\
+      bottom: 23px !important;\n\
+    }\n\
+    :root.gal-fit-height:not(.gal-pdf):not(.gal-hide-thumbnails) .gal-buttons,\n\
+    :root.gal-fit-height:not(.gal-pdf):not(.gal-hide-thumbnails) .gal-labels {\n\
+      right: 178px !important;\n\
+    }\n\
+    :root.gal-hide-thumbnails.gal-fit-height:not(.gal-pdf) .gal-buttons,\n\
+    :root.gal-hide-thumbnails.gal-fit-height:not(.gal-pdf) .gal-labels {\n\
+      right: 28px !important;\n\
+    }\n\
+    :root.gallery-open.fixed #header-bar:not(.autohide),\n\
+    :root.gallery-open.fixed #header-bar:not(.autohide) #shortcuts .fa::before {\n\
+      visibility: hidden;\n\
+    }\n\
+    /* Mod Contact Links */\n\
+    .contact-links {\n\
+      margin-left: 2px;\n\
+    }\n\
+    .move-note>a {\n\
+      text-decoration: underline;\n\
+    }\n\
+    .invisible {\n\
+      font-size: 0;\n\
+    }\n\
+    /* PostJumper */\n\
+    .postJumper>.prev,\n\
+    .postJumper>.next {\n\
+      font-size: 120%;\n\
+    }\n\
+    /* PSA */\n\
+    .fcx-announcement {\n\
+      text-align: center;\n\
+    }\n\
+    .fcx-announcement a {\n\
+      text-decoration: underline;\n\
+    }\n\
+    /* Mobile Layout Adjustments - Matching boards.4chan.org responsive view */\n\
+    @media only screen and (max-width: 480px) {\n\
+      /* Prevent horizontal scrolling on mobile */\n\
+      body {\n\
+        overflow-x: hidden !important;\n\
+        width: 100% !important;\n\
+      }\n\
+      /* Fix header bar overflow */\n\
+      #header-bar {\n\
+        width: 100% !important;\n\
+        box-sizing: border-box !important;\n\
+        min-width: 0 !important;\n\
+        max-width: 100vw !important;\n\
+        margin: 0 !important;\n\
+        left: 0 !important;\n\
+        right: 0 !important;\n\
+      }\n\
+      /* Hide desktop blotter table on mobile */\n\
+      #blotter.desktop {\n\
+        display: none !important;\n\
+      }\n\
+      /* Hide the separate hide reply button and replaced side arrows to save space */\n\
+      .hide-reply-button,\n\
+      .replacedSideArrows {\n\
+        display: none !important;\n\
+      }\n\
+      /* Fix uneven post widths by forcing block display */\n\
+      .post.reply {\n\
+        display: block !important;\n\
+        width: 100% !important;\n\
+        box-sizing: border-box;\n\
+        overflow: hidden;\n\
+        /* Prevent horizontal scroll */\n\
+        position: relative;\n\
+        /* Context for absolute menu button */\n\
+        padding-bottom: 5px;\n\
+      }\n\
+      /* Hide the checkbox on mobile to match native look */\n\
+      .postInfo>input[type=\"checkbox\"] {\n\
+        display: none !important;\n\
+      }\n\
+      /* REFINED MOBILE IMAGE LAYOUT */\n\
+      /* Hide standard file text header */\n\
+      .post .file>.fileText {\n\
+        display: none;\n\
+      }\n\
+      /* mFileInfo (Size Type) - Visible by default (collapsed) */\n\
+      .mFileInfo.mobile {\n\
+        display: block !important;\n\
+        font-size: smaller;\n\
+        color: #707070;\n\
+        margin-top: 2px;\n\
+        margin-bottom: 5px;\n\
+      }\n\
+      /* mFilename (Full Name) - Hidden by default (collapsed) */\n\
+      .mFilename.mobile {\n\
+        display: none !important;\n\
+        font-size: small;\n\
+        margin: 5px 0 0 0;\n\
+      }\n\
+      /* IMAGE EXPANSION LOGIC */\n\
+      .post .file.image-expanded {\n\
+        display: -webkit-flex;\n\
+        display: flex;\n\
+        -webkit-flex-direction: column;\n\
+        flex-direction: column;\n\
+        -webkit-align-items: flex-start;\n\
+        align-items: flex-start;\n\
+      }\n\
+      .post .file.image-expanded>.fileThumb {\n\
+        -webkit-order: 1;\n\
+        order: 1;\n\
+        margin-top: 5px;\n\
+      }\n\
+      /* Show the mFilename below the image when expanded */\n\
+      /* We use our injected mFilename instead of moving fileText to be safe/consistent */\n\
+      .post .file.image-expanded .mFilename.mobile {\n\
+        display: block !important;\n\
+        -webkit-order: 2;\n\
+        order: 2;\n\
+      }\n\
+      /* Hide the mFileInfo (minimal info) when expanded */\n\
+      .post .file.image-expanded .mFileInfo.mobile {\n\
+        display: none !important;\n\
+      }\n\
+      /* Hide original fileText even when expanded, as we use mFilename */\n\
+      .post .file.image-expanded>.fileText {\n\
+        display: none !important;\n\
+      }\n\
+      /* Native .postMenuBtn style replication */\n\
+      .post .menu-button {\n\
+        position: absolute;\n\
+        top: 5px;\n\
+        left: 5px;\n\
+        z-index: 10;\n\
+        -webkit-transform: rotate(90deg);\n\
+        -moz-transform: rotate(90deg);\n\
+        -ms-transform: rotate(90deg);\n\
+        transform: rotate(90deg);\n\
+        /* Font Update per user request to 13px */\n\
+        font-family: Arial, Helvetica, sans-serif !important;\n\
+        font-size: 13px !important;\n\
+        font-weight: bold;\n\
+        opacity: 1 !important;\n\
+        line-height: normal;\n\
+        text-decoration: none;\n\
+        cursor: pointer;\n\
+      }\n\
+      /* Adjust blockquote margins for mobile */\n\
+      blockquote.postMessage {\n\
+        margin: 10px !important;\n\
+      }\n\
+      .post .menu-button i {\n\
+        display: none;\n\
+      }\n\
+      .post .menu-button::after {\n\
+        content: \"•••\";\n\
+        display: inline-block;\n\
+        letter-spacing: 1px;\n\
+        color: inherit;\n\
+      }\n\
+      /* Native .postInfoM style replication */\n\
+      /* Scoped strictly to mobile via media query */\n\
+      .postInfo,\n\
+      .postInfo.desktop {\n\
+        display: block !important;\n\
+        overflow: hidden;\n\
+        padding: 5px;\n\
+        padding-left: 25px !important;\n\
+        border-bottom: 1px solid #B7C5D9;\n\
+        background-color: #c9cde8;\n\
+        width: auto !important;\n\
+      }\n\
+      .postInfo>.container {\n\
+        display: inline;\n\
+      }\n\
+      .nameBlock {\n\
+        display: inline;\n\
+        float: left;\n\
+        clear: none;\n\
+      }\n\
+      .dateTime,\n\
+      .postNum {\n\
+        float: right;\n\
+        text-align: right;\n\
+        font-size: 0.9em;\n\
+        white-space: nowrap;\n\
+      }\n\
+      .postNum {\n\
+        margin-left: 5px;\n\
+      }\n\
+      .nameBlock {\n\
+        margin-right: 5px;\n\
+      }\n\
+    }/* General */\n\
 :root.yotsuba .dialog {\n\
   background-color: #F0E0D6;\n\
   border-color: #D9BFB7;\n\
@@ -4716,7 +4906,7 @@ a:only-of-type > .remove {\n\
   }\n\
 }\n",
 
-report:
+    report:
 "#g-recaptcha,\n\
 :root:not(.js-enabled) #captchaContainerAlt {\n\
   height: auto;\n\
@@ -4745,7 +4935,7 @@ report:
   color: red;\n\
 }",
 
-www:
+    www:
 "#captcha-cnt {\n\
   height: auto;\n\
 }\n\
@@ -4758,21 +4948,21 @@ www:
   font-size: 0;\n\
 }\n",
 
-sub: function(css) {
-  var variables = {
-    site: g.SITE.selectors
-  };
-  return css.replace(/\$[\w\$]+/g, function(name) {
-    var words = name.slice(1).split('$');
-    var sel = variables;
-    for (var i = 0; i < words.length; i++) {
-      if (typeof sel !== 'object') return ':not(*)';
-      sel = $.getOwn(sel, words[i]);
+    sub: function(css) {
+      var variables = {
+        site: g.SITE.selectors
+      };
+      return css.replace(/\$[\w\$]+/g, function (name) {
+        var words = name.slice(1).split('$');
+        var sel = variables;
+        for (var i = 0; i < words.length; i++) {
+          if (typeof sel !== 'object') return ':not(*)';
+          sel = $.getOwn(sel, words[i]);
+        }
+        if (typeof sel !== 'string') return ':not(*)';
+        return sel;
+      });
     }
-    if (typeof sel !== 'string') return ':not(*)';
-    return sel;
-  });
-}
 
 };
 
@@ -9308,7 +9498,7 @@ DHash = (function() {
     },
     onPostsInserted: function(e) {
       var file, i, len, post, ref, results;
-      if (!Conf['Image dHash']) {
+      if (!(Conf['Image dHash'] && e.detail)) {
         return;
       }
       ref = e.detail;
@@ -10903,6 +11093,204 @@ BoardConfig = (function() {
   };
 
   return BoardConfig;
+
+}).call(this);
+
+DHashMenu = (function() {
+  var DHashMenu;
+
+  DHashMenu = {
+    init: function() {},
+    open: function() {
+      var closeLink, credits, dialog, fn, i, len, link, links, nav, overlay, sectionContainer, sectionContent, sectionsList, tab, tabs;
+      console.log("DHashMenu.open called");
+      if (DHashMenu.overlay) {
+        return;
+      }
+      $.event('CloseMenu');
+      DHashMenu.overlay = overlay = $.el('div', {
+        id: 'overlay'
+      });
+      DHashMenu.dialog = dialog = $.el('div', {
+        id: 'fourchanx-settings',
+        className: 'dialog'
+      });
+      nav = $.el('nav');
+      sectionsList = $.el('div', {
+        className: 'sections-list'
+      });
+      $.add(nav, sectionsList);
+      credits = $.el('div', {
+        className: 'credits'
+      });
+      closeLink = $.el('a', {
+        href: 'javascript:;',
+        className: 'close fa fa-times',
+        title: 'Close'
+      });
+      $.on(closeLink, 'click', DHashMenu.close);
+      $.add(credits, closeLink);
+      $.add(nav, credits);
+      $.add(dialog, nav);
+      sectionContainer = $.el('div', {
+        className: 'section-container'
+      });
+      sectionContent = $.el('section');
+      $.add(sectionContainer, sectionContent);
+      $.add(dialog, sectionContainer);
+      tabs = [
+        {
+          title: 'Main',
+          cb: DHashMenu.main
+        }, {
+          title: 'Data',
+          cb: DHashMenu.data
+        }
+      ];
+      links = [];
+      fn = function(tab) {
+        return $.on(link, 'click', function() {
+          return DHashMenu.openTab(tab, dialog);
+        });
+      };
+      for (i = 0, len = tabs.length; i < len; i++) {
+        tab = tabs[i];
+        link = $.el('a', {
+          className: "tab-" + (tab.title.toLowerCase()),
+          textContent: tab.title,
+          href: 'javascript:;'
+        });
+        fn(tab);
+        links.push(link, $.tn(' | '));
+      }
+      links.pop();
+      $.add(sectionsList, links);
+      $.on(window, 'beforeunload', DHashMenu.close);
+      $.on(overlay, 'click', DHashMenu.close);
+      $.on(dialog, 'click', function(e) {
+        return e.stopPropagation();
+      });
+      $.add(overlay, dialog);
+      $.add(d.body, overlay);
+      return links[0].click();
+    },
+    close: function() {
+      var ref;
+      if (!DHashMenu.overlay) {
+        return;
+      }
+      if ((ref = d.activeElement) != null) {
+        ref.blur();
+      }
+      $.rm(DHashMenu.overlay);
+      delete DHashMenu.overlay;
+      return delete DHashMenu.dialog;
+    },
+    openTab: function(tab, dialog) {
+      var section, selected;
+      if (selected = $('.tab-selected', dialog)) {
+        $.rmClass(selected, 'tab-selected');
+      }
+      $.addClass($(".tab-" + (tab.title.toLowerCase()), dialog), 'tab-selected');
+      section = $('section', dialog);
+      $.rmAll(section);
+      section.className = "section-" + (tab.title.toLowerCase());
+      section.scrollTop = 0;
+      return tab.cb(section);
+    },
+    main: function(section) {
+      var addCheckboxes, fs, hasDHash, inputs, items, key, keyFS, obj, ref;
+      items = $.dict();
+      inputs = $.dict();
+      addCheckboxes = function(root, obj) {
+        var arr, container, containers, description, div, input, key, level, results;
+        containers = [root];
+        results = [];
+        for (key in obj) {
+          arr = obj[key];
+          if (!(arr instanceof Array)) {
+            continue;
+          }
+          if (!(key.indexOf('dHash') > -1 || key === 'Image dHash')) {
+            continue;
+          }
+          description = arr[1];
+          div = $.el('div', {
+            innerHTML: "<label><input type=\"checkbox\" name=\"" + key + "\">" + key + "</label><span class=\"description\">: " + description + "</span>"
+          });
+          div.dataset.name = key;
+          input = $('input', div);
+          $.on(input, 'change', $.cb.checked);
+          $.on(input, 'change', function() {
+            return this.parentNode.parentNode.dataset.checked = this.checked;
+          });
+          items[key] = Conf[key];
+          inputs[key] = input;
+          level = arr[2] || 0;
+          if (containers.length <= level) {
+            container = $.el('div', {
+              className: 'suboption-list'
+            });
+            $.add(containers[containers.length - 1].lastElementChild, container);
+            containers[level] = container;
+          } else if (containers.length > level + 1) {
+            containers.splice(level + 1, containers.length - (level + 1));
+          }
+          results.push($.add(containers[level], div));
+        }
+        return results;
+      };
+      ref = Config.main;
+      for (keyFS in ref) {
+        obj = ref[keyFS];
+        hasDHash = false;
+        for (key in obj) {
+          if (key.indexOf('dHash') > -1 || key === 'Image dHash') {
+            hasDHash = true;
+            break;
+          }
+        }
+        if (!hasDHash) {
+          continue;
+        }
+        fs = $.el('fieldset', {
+          innerHTML: "<legend>" + keyFS + "</legend>"
+        });
+        addCheckboxes(fs, obj);
+        $.add(section, fs);
+      }
+      return $.get(items, function(items) {
+        var val;
+        for (key in items) {
+          val = items[key];
+          if (inputs[key]) {
+            inputs[key].checked = val;
+            inputs[key].parentNode.parentNode.dataset.checked = val;
+          }
+        }
+      });
+    },
+    data: function(section) {
+      var dbInput, div;
+      div = $.el('div', {
+        innerHTML: 'dHash Database (Format: dHash ### postID ### MD5)<br>'
+      });
+      dbInput = $.el('textarea', {
+        className: 'field',
+        style: 'width: 100%; height: 400px; display: block;',
+        placeholder: 'Database content will appear here...'
+      });
+      dbInput.value = Conf['dhashDatabase'] || '';
+      $.on(dbInput, 'input', function() {
+        Conf['dhashDatabase'] = this.value;
+        return $.set('dhashDatabase', this.value);
+      });
+      $.add(div, dbInput);
+      return $.add(section, div);
+    }
+  };
+
+  return DHashMenu;
 
 }).call(this);
 
@@ -16425,6 +16813,46 @@ Metadata = (function() {
   };
 
   return Metadata;
+
+}).call(this);
+
+MobileLayout = (function() {
+  var MobileLayout;
+
+  MobileLayout = {
+    init: function() {
+      return Callbacks.Post.push({
+        name: 'Mobile Image Info',
+        cb: this.node
+      });
+    },
+    node: function() {
+      var divInfo, divName, infoContent;
+      if (!this.file) {
+        return;
+      }
+      if ($('.mFileInfo.mobile', this.file.text.parentNode)) {
+        return;
+      }
+      infoContent = this.file.size + " " + (this.file.tag || 'JPG');
+      divInfo = $.el('div', {
+        className: 'mFileInfo mobile',
+        textContent: infoContent
+      });
+      divName = $.el('div', {
+        className: 'mFilename mobile',
+        textContent: this.file.name
+      });
+      divInfo.setAttribute('data-tip', '');
+      divInfo.setAttribute('data-tip-cb', 'mShowFull');
+      if (this.file.thumbLink) {
+        $.after(this.file.thumbLink, divInfo);
+        $.after(this.file.thumbLink, divName);
+      }
+    }
+  };
+
+  return MobileLayout;
 
 }).call(this);
 
@@ -28387,7 +28815,7 @@ Main = (function() {
       }
     },
     mountedCBs: [],
-    features: [['Polyfill', Polyfill], ['Board Configuration', BoardConfig], ['Normalize URL', NormalizeURL], ['Delay Redirect on Post', PostRedirect], ['Captcha Configuration', Captcha.replace], ['Image Host Rewriting', ImageHost], ['Redirect', Redirect], ['Header', Header], ['Catalog Links', CatalogLinks], ['Settings', Settings], ['Index Generator', Index], ['Disable Autoplay', AntiAutoplay], ['Announcement Hiding', PSAHiding], ['Fourchan thingies', Fourchan], ['Tinyboard Glue', Tinyboard], ['Color User IDs', IDColor], ['Highlight by User ID', IDHighlight], ['Count Posts by ID', IDPostCount], ['Custom CSS', CustomCSS], ['Thread Links', ThreadLinks], ['Linkify', Linkify], ['Reveal Spoilers', RemoveSpoilers], ['Resurrect Quotes', Quotify], ['Filter', Filter], ['DHash', DHash], ['Thread Hiding Buttons', ThreadHiding], ['Reply Hiding Buttons', PostHiding], ['Recursive', Recursive], ['Strike-through Quotes', QuoteStrikeThrough], ['Quick Reply Personas', QR.persona], ['Quick Reply', QR], ['Cooldown', QR.cooldown], ['Post Jumper', PostJumper], ['Pass Link', PassLink], ['Menu', Menu], ['Index Generator (Menu)', Index.menu], ['Report Link', ReportLink], ['Copy Text Link', CopyTextLink], ['Thread Hiding (Menu)', ThreadHiding.menu], ['Reply Hiding (Menu)', PostHiding.menu], ['Delete Link', DeleteLink], ['Filter (Menu)', Filter.menu], ['Edit Link', QR.oekaki.menu], ['Download Link', DownloadLink], ['Archive Link', ArchiveLink], ['Quote Inlining', QuoteInline], ['Quote Previewing', QuotePreview], ['Quote Backlinks', QuoteBacklink], ['Mark Quotes of You', QuoteYou], ['Mark OP Quotes', QuoteOP], ['Mark Cross-thread Quotes', QuoteCT], ['Anonymize', Anonymize], ['Time Formatting', Time], ['Relative Post Dates', RelativeDates], ['File Info Formatting', FileInfo], ['Fappe Tyme', FappeTyme], ['Gallery', Gallery], ['Gallery (menu)', Gallery.menu], ['Sauce', Sauce], ['Image Expansion', ImageExpand], ['Image Expansion (Menu)', ImageExpand.menu], ['Reveal Spoiler Thumbnails', RevealSpoilers], ['Image Loading', ImageLoader], ['Image Hover', ImageHover], ['Volume Control', Volume], ['WEBM Metadata', Metadata], ['Comment Expansion', ExpandComment], ['Thread Expansion', ExpandThread], ['Favicon', Favicon], ['Unread', Unread], ['Unread Line in Index', UnreadIndex], ['Quote Threading', QuoteThreading], ['Thread Stats', ThreadStats], ['Thread Updater', ThreadUpdater], ['Thread Watcher', ThreadWatcher], ['Thread Watcher (Menu)', ThreadWatcher.menu], ['Mark New IPs', MarkNewIPs], ['Index Navigation', Nav], ['Keybinds', Keybinds], ['Banner', Banner], ['Announcements', PSA], ['Flash Features', Flash], ['Reply Pruning', ReplyPruning], ['Mod Contact Links', ModContact]]
+    features: [['Polyfill', Polyfill], ['Board Configuration', BoardConfig], ['Normalize URL', NormalizeURL], ['Delay Redirect on Post', PostRedirect], ['Captcha Configuration', Captcha.replace], ['Image Host Rewriting', ImageHost], ['Redirect', Redirect], ['Header', Header], ['Catalog Links', CatalogLinks], ['Settings', Settings], ['Index Generator', Index], ['Disable Autoplay', AntiAutoplay], ['Announcement Hiding', PSAHiding], ['Fourchan thingies', Fourchan], ['Tinyboard Glue', Tinyboard], ['Color User IDs', IDColor], ['Highlight by User ID', IDHighlight], ['Count Posts by ID', IDPostCount], ['Custom CSS', CustomCSS], ['Thread Links', ThreadLinks], ['Linkify', Linkify], ['Reveal Spoilers', RemoveSpoilers], ['Resurrect Quotes', Quotify], ['Filter', Filter], ['DHash', DHash], ['Thread Hiding Buttons', ThreadHiding], ['Reply Hiding Buttons', PostHiding], ['Recursive', Recursive], ['Strike-through Quotes', QuoteStrikeThrough], ['Quick Reply Personas', QR.persona], ['Quick Reply', QR], ['Cooldown', QR.cooldown], ['Post Jumper', PostJumper], ['Pass Link', PassLink], ['Menu', Menu], ['Index Generator (Menu)', Index.menu], ['Report Link', ReportLink], ['Copy Text Link', CopyTextLink], ['Thread Hiding (Menu)', ThreadHiding.menu], ['Reply Hiding (Menu)', PostHiding.menu], ['Delete Link', DeleteLink], ['Filter (Menu)', Filter.menu], ['Edit Link', QR.oekaki.menu], ['Download Link', DownloadLink], ['Archive Link', ArchiveLink], ['Quote Inlining', QuoteInline], ['Quote Previewing', QuotePreview], ['Quote Backlinks', QuoteBacklink], ['Mark Quotes of You', QuoteYou], ['Mark OP Quotes', QuoteOP], ['Mark Cross-thread Quotes', QuoteCT], ['Anonymize', Anonymize], ['Time Formatting', Time], ['Relative Post Dates', RelativeDates], ['File Info Formatting', FileInfo], ['Fappe Tyme', FappeTyme], ['Gallery', Gallery], ['Gallery (menu)', Gallery.menu], ['Sauce', Sauce], ['Image Expansion', ImageExpand], ['Image Expansion (Menu)', ImageExpand.menu], ['Reveal Spoiler Thumbnails', RevealSpoilers], ['Mobile Layout', MobileLayout], ['Image Loading', ImageLoader], ['Image Hover', ImageHover], ['Volume Control', Volume], ['WEBM Metadata', Metadata], ['Comment Expansion', ExpandComment], ['Thread Expansion', ExpandThread], ['Favicon', Favicon], ['Unread', Unread], ['Unread Line in Index', UnreadIndex], ['Quote Threading', QuoteThreading], ['Thread Stats', ThreadStats], ['Thread Updater', ThreadUpdater], ['Thread Watcher', ThreadWatcher], ['Thread Watcher (Menu)', ThreadWatcher.menu], ['Mark New IPs', MarkNewIPs], ['Index Navigation', Nav], ['Keybinds', Keybinds], ['Banner', Banner], ['Announcements', PSA], ['Flash Features', Flash], ['Reply Pruning', ReplyPruning], ['Mod Contact Links', ModContact]]
   };
 
   return Main;

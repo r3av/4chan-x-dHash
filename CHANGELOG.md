@@ -4,6 +4,14 @@
 
 ### v1.14.23
 
+**v1.14.23.2.3** *(2026-02-03)*  [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/feature/dHash-v1/testbuilds/4chan-X.user.js)]
+- (r3av) **Mobile Layout Overhaul**:
+    - **Native Parity**: Aligned CSS with native 4chan responsive design (margins, fonts, layout).
+    - **Smart File Info**: Split file size/type from filename; filename reveals on expansion to save screen space.
+    - **Scroll Fixes**: Enforced vertical-only scrolling on mobile by constraining header bars and hiding desktop blotters.
+- (r3av) **DEV ONLY - Simulation Mode Fixes**:
+    - Fixed ZIP download failing due to blob/SparkMD5 compatibility issues.
+
 **v1.14.23.2.2** *(2026-02-02)*  [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/feature/dHash-v1/testbuilds/4chan-X.user.js)]
 - (r3av) **Major Robustness Upgrade for dHash**:
     - **100% Accuracy on Thumbnails**: Implemented a "Pre-Scaling" algorithm that perfectly matches browser thumbnail generation. Filters intended for full images now actively catch their thumbnails (and vice versa) with zero false negatives.

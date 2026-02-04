@@ -684,6 +684,7 @@ Main =
     ['Image Expansion',           ImageExpand]
     ['Image Expansion (Menu)',    ImageExpand.menu]
     ['Reveal Spoiler Thumbnails', RevealSpoilers]
+    ['Mobile Layout',             MobileLayout]
     ['Image Loading',             ImageLoader]
     ['Image Hover',               ImageHover]
     ['Volume Control',            Volume]

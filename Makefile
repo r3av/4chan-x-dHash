@@ -94,9 +94,13 @@ script := $(foreach f,$(filter-out %.crx %.zip,$(release)),test$(f)) $(foreach t
 
 crx := $(foreach f,$(filter %.crx %.zip,$(release)),test$(f))
 
+
 default : script jshint install
 
 all : default release
+
+dev : testbuilds/$(name)-beta.user.js testbuilds/$(name)-beta.meta.js testbuilds/updates-beta.xml testbuilds/updates-beta.json
+
 
 .events .events2 tmp testbuilds builds :
 	$(MKDIR)
