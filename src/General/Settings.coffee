@@ -831,7 +831,7 @@ Settings =
     $.cb.value.call @
 
   dhashData: (section) ->
-    DHash.saveData() if DHash.saveData
+    DataSaver.saveData() if DataSaver.saveData
     html = """
       <fieldset>
         <legend>dHash Post Data</legend>
@@ -854,30 +854,31 @@ Settings =
 
     btnForce = $ 'button[name="force_add"]', section
     $.on btnForce, 'click', ->
-      return unless DHash.postData
-      DHash.forceAdd = true
+      return unless DataSaver.postData
+      DataSaver.forceAdd = true
       count = 0
-      for hash, entries of DHash.postData
+      for hash, entries of DataSaver.postData
         for entry in entries
           # Look up the live post by board and post number
           post = g.posts.get("#{entry.board}.#{entry.num}")
           if post
             # Find file with matching dhash
             for file in post.files when file.dhash is hash
-              DHash.collect post, file, entry.reason_added
+              DataSaver.collect post, file, entry.reason_added
               count++
               break
-      DHash.forceAdd = false
-      DHash.saveData()
+      DataSaver.forceAdd = false
+      DataSaver.saveData()
       ta.value = Conf['dhash_post_data']
       new Notice 'success', "Force Add Data complete. Updated #{count} entries.", 3
 
     btnRemove = $ 'button[name="remove_page_posts"]', section
     $.on btnRemove, 'click', ->
       # Load data directly from Conf if DHash didn't init (e.g. Filtering off)
-      postData = DHash.postData
+      postData = DataSaver.postData
       unless postData
         try
+          # DataSaver should handle init now, but fallback is safe
           postData = JSON.parse(Conf['dhash_post_data'] or '{}')
         catch
           postData = {}
@@ -904,12 +905,12 @@ Settings =
           delete postData[hash]
 
       if count > 0
-        # Save directly to Conf since DHash.saveData may not work if Filter is off
+        # Save directly to Conf since DataSaver.saveData checks dataChanged
         json = JSON.stringify(postData, null, 2)
         Conf['dhash_post_data'] = json
         $.set 'dhash_post_data', json
-        # Update DHash.postData if it exists
-        DHash.postData = postData if DHash.postData
+        # Update DataSaver.postData if it exists
+        DataSaver.postData = postData if DataSaver.postData
         
         ta.value = json
         new Notice 'success', "Removed #{count} entries found on this page.", 3
