@@ -842,6 +842,7 @@ Settings =
         <div>
           <button name="force_add">Force Add Data</button>
           <button name="remove_page_posts">Remove Page Posts</button>
+          <button name="sort_by_date">Sort by Date</button>
         </div>
         <textarea name="dhash_post_data" style="width: 100%; height: 500px; font-family: monospace; white-space: pre;"></textarea>
       </fieldset>
@@ -852,6 +853,7 @@ Settings =
     $.on ta, 'change', $.cb.value
     $.on ta, 'change', -> Conf['dhash_post_data'] = @value
 
+    sortNewestFirst = true
     btnForce = $ 'button[name="force_add"]', section
     $.on btnForce, 'click', ->
       return unless DataSaver.postData
@@ -871,6 +873,44 @@ Settings =
       DataSaver.saveData()
       ta.value = Conf['dhash_post_data']
       new Notice 'success', "Force Add Data complete. Updated #{count} entries.", 3
+
+    btnSort = $ 'button[name="sort_by_date"]', section
+    $.on btnSort, 'click', ->
+      postData = DataSaver.postData
+      unless postData
+        try
+          postData = JSON.parse(Conf['dhash_post_data'] or '{}')
+        catch
+          postData = {}
+      
+      return if Object.keys(postData).length is 0
+
+      # Sort entries within each hash
+      for hash, entries of postData
+        entries.sort (a, b) ->
+          if sortNewestFirst then b.timestamp - a.timestamp else a.timestamp - b.timestamp
+
+      # Sort hash groups by their prioritized entry's timestamp (using the first entry after internal sort)
+      sortedKeys = Object.keys(postData).sort (a, b) ->
+        if sortNewestFirst
+          postData[b][0].timestamp - postData[a][0].timestamp
+        else
+          postData[a][0].timestamp - postData[b][0].timestamp
+
+      # Rebuild object to preserve order
+      newPostData = {}
+      for key in sortedKeys
+        newPostData[key] = postData[key]
+      
+      # Save
+      json = JSON.stringify(newPostData, null, 2)
+      Conf['dhash_post_data'] = json
+      $.set 'dhash_post_data', json
+      DataSaver.postData = newPostData if DataSaver.postData
+      
+      ta.value = json
+      new Notice 'success', "Sorted post data by date (#{if sortNewestFirst then 'newest first' else 'oldest first'}).", 3
+      sortNewestFirst = !sortNewestFirst
 
     btnRemove = $ 'button[name="remove_page_posts"]', section
     $.on btnRemove, 'click', ->

@@ -38,6 +38,7 @@ DataSaver =
     entry =
       board:     post.board.ID
       num:       post.ID
+      thread_num: post.thread.ID
       filehash:  post.file.MD5
       filename:  post.file.name
       timestamp: Math.floor(post.info.date.getTime() / 1000)
