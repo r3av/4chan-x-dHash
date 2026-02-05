@@ -168,6 +168,10 @@ Filter =
             if hideable
               hide = true
               stub and= filter.stub
+              unless match
+                match = {key}
+                if key is 'dhash'
+                  match.distance = Filter.hammingDistance(filter.regexp, value)
           else
             unless hl and filter.hl in hl
               (hl or= []).push filter.hl
@@ -175,7 +179,7 @@ Filter =
             if filter.noti
               noti = true
     if hide
-      {hide, stub}
+      {hide, stub, match}
     else
       {hl, top, noti}
 
@@ -445,4 +449,24 @@ Filter =
       ).join('\n')
 
       Filter.addFilter type, res, ->
+        triggered = false
+        if type is 'dhash' and Conf['Save dHash Filtered Post Data']
+          triggered = true
+        else if type is 'MD5' and Conf['Save MD5 Filtered Post Data']
+          triggered = true
+        else if type is 'name' and Conf['Save Name Filtered Post Data']
+          triggered = true
+        else if type is 'tripcode' and Conf['Save Tripcode Filtered Post Data']
+          triggered = true
+        else if type is 'comment' and Conf['Save Comment Filtered Post Data']
+          triggered = true
+        else if type is 'filename' and Conf['Save Filename Filtered Post Data']
+          triggered = true
+        else if Conf["Save #{type[0].toUpperCase() + type[1..]} Filtered Post Data"]
+          triggered = true
+
+        if triggered
+          for file in post.files when file.dhash
+            DHash.collect post, file, 'manual'
+          DHash.saveData()
         Filter.showFilters type

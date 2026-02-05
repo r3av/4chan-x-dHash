@@ -17,6 +17,7 @@ Settings =
     add 'Sauce',    @sauce
     add 'Advanced', @advanced
     add 'Keybinds', @keybinds
+    add 'dHash Data', @dhashData
 
     $.on d, 'AddSettingsSection',   Settings.addSection
     $.on d, 'OpenSettings', (e) -> Settings.open e.detail
@@ -828,3 +829,20 @@ Settings =
     return unless (key = Keybinds.keyCode e)?
     @value = key
     $.cb.value.call @
+
+  dhashData: (section) ->
+    html = """
+      <fieldset>
+        <legend>dHash Post Data</legend>
+        <div class="description">
+          Detailed metadata for posts with dHash calculated. 
+          Use "Save Thread Data" or "Save dHash Filtered Post Data" in Filter settings to populate this.
+        </div>
+        <textarea name="dhash_post_data" style="width: 100%; height: 500px; font-family: monospace; white-space: pre;"></textarea>
+      </fieldset>
+    """
+    section.innerHTML = html
+    ta = $ 'textarea', section
+    ta.value = Conf['dhash_post_data']
+    $.on ta, 'change', $.cb.value
+    $.on ta, 'change', -> Conf['dhash_post_data'] = @value

@@ -27,6 +27,18 @@ DHash =
 
     $.on d, 'PostsInserted', DHash.onPostsInserted
 
+    if Conf['Save Thread Data'] or 
+       Conf['Save dHash Filtered Post Data'] or
+       Conf['Save MD5 Filtered Post Data'] or
+       Conf['Save Name Filtered Post Data'] or
+       Conf['Save Tripcode Filtered Post Data'] or
+       Conf['Save Comment Filtered Post Data'] or
+       Conf['Save Filename Filtered Post Data']
+      try
+        DHash.postData = JSON.parse(Conf['dhash_post_data'] or '{}')
+      catch
+        DHash.postData = {}
+
   updateStatus: ->
     return unless DHash.status
     
@@ -121,7 +133,7 @@ DHash =
        $.rmClass post.nodes.root, 'dhash-pending'
 
     try
-      {hide, stub} = Filter.test post
+      {hide, stub, match} = Filter.test post
       if hide
         DHash.filteredCount++
         DHash.updateStatus()
@@ -139,6 +151,33 @@ DHash =
             Filter.addFilter 'MD5', "/#{file.MD5}/"
             DHash.newMD5Count++
             DHash.updateStatus()
+
+        # Capture the trigger and check if we should save
+        if match
+          triggered = false
+          reason = ''
+          if match.key is 'dhash'
+            if Conf['Save dHash Filtered Post Data']
+              triggered = true
+              reason = if match.distance is 0 then 'dhash matched existing dhash' else "dhash matched close to existing dhash <#{match.distance}>"
+          else if match.key is 'MD5'
+            if Conf['Save MD5 Filtered Post Data']
+              triggered = true
+              reason = 'from existing md5'
+          else if match.key is 'name' and Conf['Save Name Filtered Post Data']
+            triggered = true
+          else if match.key is 'tripcode' and Conf['Save Tripcode Filtered Post Data']
+            triggered = true
+          else if match.key is 'comment' and Conf['Save Comment Filtered Post Data']
+            triggered = true
+          else if match.key is 'filename' and Conf['Save Filename Filtered Post Data']
+            triggered = true
+          else if Conf["Save #{match.key[0].toUpperCase() + match.key[1..]} Filtered Post Data"] # Fallback for others
+            triggered = true
+
+          if triggered and file.dhash
+            reason or= "filtered by #{match.key}"
+            DHash.collect post, file, reason
 
         if post.isReply
           PostHiding.hide post, stub
@@ -161,6 +200,74 @@ DHash =
           window.requestIdleCallback DHash.run, { timeout: 100 }
        else
           setTimeout DHash.run, 0
+    else
+       DHash.saveData()
+
+  saveData: ->
+    return unless (Conf['Save Thread Data'] or 
+       Conf['Save dHash Filtered Post Data'] or
+       Conf['Save MD5 Filtered Post Data'] or
+       Conf['Save Name Filtered Post Data'] or
+       Conf['Save Tripcode Filtered Post Data'] or
+       Conf['Save Comment Filtered Post Data'] or
+       Conf['Save Filename Filtered Post Data']) and DHash.dataChanged
+    
+    # Persist the collected data
+    json = JSON.stringify(DHash.postData, null, 2)
+    Conf['dhash_post_data'] = json
+    $.set 'dhash_post_data', json
+    DHash.dataChanged = false
+    
+  collect: (post, file, reason) ->
+    return unless Conf['Save Thread Data'] or 
+       Conf['Save dHash Filtered Post Data'] or
+       Conf['Save MD5 Filtered Post Data'] or
+       Conf['Save Name Filtered Post Data'] or
+       Conf['Save Tripcode Filtered Post Data'] or
+       Conf['Save Comment Filtered Post Data'] or
+       Conf['Save Filename Filtered Post Data']
+    
+    entry =
+      board:     post.board.ID
+      num:       post.ID
+      filehash:  post.file.MD5
+      filename:  post.file.name
+      timestamp: Math.floor(post.info.date.getTime() / 1000)
+      name:      post.info.name or "Anonymous"
+      text:      post.info.comment or null
+      trip:      post.info.tripcode or null
+      preview_w: file.thumb?.naturalWidth or file.thumb?.width or null
+      preview_h: file.thumb?.naturalHeight or file.thumb?.height or null
+      media_w:   file.width or (if file.dimensions then +file.dimensions.split('x')[0] else null)
+      media_h:   file.height or (if file.dimensions then +file.dimensions.split('x')[1] else null)
+      reason_added: reason or 'thread-wide'
+      
+    hash = file.dhash
+    DHash.postData[hash] or= []
+    
+    # Avoid duplicates and handle reason priority
+    # Manual > Exact dHash > Close dHash > MD5 > Other Filter > Thread-wide
+    getPriority = (r) ->
+      return 100 if r is 'manual'
+      return 90 if r is 'dhash matched existing dhash'
+      return 80 if r?.startsWith 'dhash matched close'
+      return 70 if r is 'from existing md5'
+      return 60 if r?.startsWith 'filtered by'
+      return 10
+      
+    exists = false
+    priority = getPriority entry.reason_added
+    for item in DHash.postData[hash]
+      if item.board is entry.board and item.num is entry.num
+         exists = true
+         if getPriority(item.reason_added) < priority
+            item.reason_added = entry.reason_added
+            DHash.dataChanged = true
+         break
+         
+    unless exists
+       DHash.postData[hash].push entry
+       DHash.dataChanged = true
 
   compute: ({post, file, img}) ->
     return unless img.naturalWidth # sanity check
@@ -169,6 +276,8 @@ DHash =
       file.dhash = DHash.computeHash(img)
       if file.MD5
          DHash.md5Cache[file.MD5] = file.dhash
+      if Conf['Save Thread Data']
+        DHash.collect post, file, 'thread-wide'
       DHash.check post, file
     catch err
       # console.error 'dHash error', err

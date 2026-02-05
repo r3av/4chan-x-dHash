@@ -246,6 +246,34 @@ Config =
         'Show persistent statistics in the header.'
         1
       ]
+      'Save Thread Data': [
+        false
+        'Save metadata (board, text, filename) for every hashed image to the "dHash Data" tab. WARNING: Can use significant storage.'
+      ]
+      'Save dHash Filtered Post Data': [
+        false
+        'Save metadata ONLY when an image is automatically filtered or manually blocked via dHash.'
+      ]
+      'Save MD5 Filtered Post Data': [
+        false
+        'Save metadata ONLY when an image is automatically filtered or manually blocked via MD5.'
+      ]
+      'Save Name Filtered Post Data': [
+        false
+        'Save metadata ONLY when an image is automatically filtered or manually blocked via name.'
+      ]
+      'Save Tripcode Filtered Post Data': [
+        false
+        'Save metadata ONLY when an image is automatically filtered or manually blocked via tripcode.'
+      ]
+      'Save Comment Filtered Post Data': [
+        false
+        'Save metadata ONLY when an image is automatically filtered or manually blocked via comment.'
+      ]
+      'Save Filename Filtered Post Data': [
+        false
+        'Save metadata ONLY when an image is automatically filtered or manually blocked via filename.'
+      ]
 
     'Images and Videos':
       'Image Expansion': [
@@ -1182,6 +1210,9 @@ Config =
     'qr.position':             'top: 50px; right: 0px;'
 
   fourchanImageHost: 'i.4cdn.org'
+
+  dhashDatabase: ''
+  dhash_post_data: '{}'
 
   hiddenPSAList: [{}]
 
