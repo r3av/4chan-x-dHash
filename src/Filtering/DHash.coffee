@@ -5,9 +5,13 @@ DHash =
   total: 0
   filteredCount: 0
   newMD5Count: 0
+  forceAdd: false
+  dataChanged: false
 
   init: ->
     return unless Conf['Filter']
+    $.on window, 'beforeunload', DHash.saveData
+
 
     if Conf['Show dHash Status'] or Conf['Show dHash Calculation Progress']
       @status = $.el 'span',
@@ -96,49 +100,51 @@ DHash =
        DHash.check post, file
        return
 
+    # Check if already processing/processed (avoids duplicate queueing)
+    return if file.dhashIsProcessing
+    file.dhashIsProcessing = true
+    
     DHash.total++
     DHash.updateStatus()
     
     startTime = Date.now()
 
-    calc = ->
-      loadTime = Date.now() - startTime
-      DHash.queue.push {post, file, img}
+    calc = (sourceImg) ->
+      DHash.queue.push {post, file, img: sourceImg}
       DHash.run()
     
-    # Eagerly prepare the image for reading
+    # Handle image loading using a detached Image object to ensure it loads even if hidden
+    # Use the thumbnail URL
+    url = img.src
+    # Handle data-src if lazy loaded? 4chan X usually sets src.
+    
+    dummy = new Image()
+    dummy.crossOrigin = 'anonymous'
+    
+    dummy.onload = ->
+      calc(dummy)
+      
+    dummy.onerror = ->
+      DHash.processed++
+      DHash.updateStatus()
+      
+    dummy.src = url
+    
+    # Eagerly prepare the DOM element too just in case visuals need it
     if Conf['Hide until dHash']
        $.addClass post.nodes.root, 'dhash-pending'
-
-    if img.complete and img.naturalWidth
-       if img.crossOrigin isnt 'anonymous' and !/^data:/.test(img.src)
-          img.crossOrigin = 'anonymous'
-          img.onload = calc
-          img.onerror = -> 
-             # On error, we just skip it but count it as processed
-             DHash.processed++
-             DHash.updateStatus()
-          img.src = img.src # Trigger reload with new crossOrigin
-       else
-          calc()
-    else
-       img.crossOrigin = 'anonymous'
-       img.onload = calc
-       img.onerror = ->
-          DHash.processed++
-          DHash.updateStatus()
 
   check: (post, file) ->
     if Conf['Hide until dHash']
        $.rmClass post.nodes.root, 'dhash-pending'
 
     try
-      {hide, stub, match} = Filter.test post
+      {hide, stub, match, matches} = Filter.test post
       if hide
         DHash.filteredCount++
         DHash.updateStatus()
 
-        if Conf['Save dHash MD5s'] and file.MD5
+        if Conf['Save dHash MD5s'] and file.MD5 and match and match.key is 'dhash'
           # Check if this MD5 is already filtered to avoid duplicate entries
           alreadyFiltered = false
           if Filter.filters.MD5
@@ -153,30 +159,61 @@ DHash =
             DHash.updateStatus()
 
         # Capture the trigger and check if we should save
-        if match
+        triggers = matches
+        unless triggers
+          if match
+            triggers = [match]
+          else
+            triggers = []
+
+        if triggers.length > 0
           triggered = false
           reason = ''
-          if match.key is 'dhash'
-            if Conf['Save dHash Filtered Post Data']
+          
+          for m in triggers
+            continue unless m
+            r = ''
+            t = false
+            key = m.key
+            
+            if key is 'dhash' and Conf['Save dHash Filtered Post Data']
+              r = if m.distance is 0 then 'dhash matched existing dhash' else "dhash matched close to existing dhash <#{m.distance}>"
+              t = true
+            else if key is 'MD5' and Conf['Save MD5 Filtered Post Data']
+              r = 'from existing md5'
+              t = true
+            else if key is 'name' and Conf['Save Name Filtered Post Data']
+              r = 'filtered by name'
+              t = true
+            else if key is 'tripcode' and Conf['Save Tripcode Filtered Post Data']
+              r = 'filtered by tripcode'
+              t = true
+            else if key is 'comment' and Conf['Save Comment Filtered Post Data']
+              r = 'filtered by comment'
+              t = true
+            else if key is 'filename' and Conf['Save Filename Filtered Post Data']
+              r = 'filtered by filename'
+              t = true
+            else if Conf["Save #{key[0].toUpperCase() + key[1..]} Filtered Post Data"]
+              r = "filtered by #{key}"
+              t = true
+            
+            if t
               triggered = true
-              reason = if match.distance is 0 then 'dhash matched existing dhash' else "dhash matched close to existing dhash <#{match.distance}>"
-          else if match.key is 'MD5'
-            if Conf['Save MD5 Filtered Post Data']
-              triggered = true
-              reason = 'from existing md5'
-          else if match.key is 'name' and Conf['Save Name Filtered Post Data']
-            triggered = true
-          else if match.key is 'tripcode' and Conf['Save Tripcode Filtered Post Data']
-            triggered = true
-          else if match.key is 'comment' and Conf['Save Comment Filtered Post Data']
-            triggered = true
-          else if match.key is 'filename' and Conf['Save Filename Filtered Post Data']
-            triggered = true
-          else if Conf["Save #{match.key[0].toUpperCase() + match.key[1..]} Filtered Post Data"] # Fallback for others
-            triggered = true
+              # Priority: dHash > MD5 > others
+              if key is 'dhash'
+                reason = r
+                break
+              if key is 'MD5'
+                reason = r
+              unless reason
+                reason = r
 
           if triggered and file.dhash
-            reason or= "filtered by #{match.key}"
+            k = 'unknown'
+            if triggers[0]
+              k = triggers[0].key
+            reason or= "filtered by #{k}"
             DHash.collect post, file, reason
 
         if post.isReply
@@ -257,10 +294,16 @@ DHash =
       
     exists = false
     priority = getPriority entry.reason_added
-    for item in DHash.postData[hash]
+    for item, idx in DHash.postData[hash]
       if item.board is entry.board and item.num is entry.num
          exists = true
-         if getPriority(item.reason_added) < priority
+         if DHash.forceAdd
+            # Overwrite the entire entry, preserving reason if higher priority
+            if getPriority(item.reason_added) >= priority
+               entry.reason_added = item.reason_added
+            DHash.postData[hash][idx] = entry
+            DHash.dataChanged = true
+         else if getPriority(item.reason_added) < priority
             item.reason_added = entry.reason_added
             DHash.dataChanged = true
          break

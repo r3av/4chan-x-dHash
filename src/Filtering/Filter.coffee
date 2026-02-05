@@ -144,6 +144,8 @@ Filter =
     hl   = undefined
     top  = false
     noti = false
+    match = undefined
+    matches = undefined
     if QuoteYou.isYou(post)
       hideable = false
     mask = (if post.isReply then 2 else 1)
@@ -168,10 +170,13 @@ Filter =
             if hideable
               hide = true
               stub and= filter.stub
-              unless match
-                match = {key}
-                if key is 'dhash'
-                  match.distance = Filter.hammingDistance(filter.regexp, value)
+              
+              m = {key}
+              if key is 'dhash'
+                m.distance = Filter.hammingDistance(filter.regexp, value)
+              
+              match or= m
+              (matches or= []).push m
           else
             unless hl and filter.hl in hl
               (hl or= []).push filter.hl
@@ -179,7 +184,7 @@ Filter =
             if filter.noti
               noti = true
     if hide
-      {hide, stub, match}
+      {hide, stub, match, matches}
     else
       {hl, top, noti}
 

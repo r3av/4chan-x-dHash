@@ -831,12 +831,17 @@ Settings =
     $.cb.value.call @
 
   dhashData: (section) ->
+    DHash.saveData() if DHash.saveData
     html = """
       <fieldset>
         <legend>dHash Post Data</legend>
         <div class="description">
           Detailed metadata for posts with dHash calculated. 
           Use "Save Thread Data" or "Save dHash Filtered Post Data" in Filter settings to populate this.
+        </div>
+        <div>
+          <button name="force_add">Force Add Data</button>
+          <button name="remove_page_posts">Remove Page Posts</button>
         </div>
         <textarea name="dhash_post_data" style="width: 100%; height: 500px; font-family: monospace; white-space: pre;"></textarea>
       </fieldset>
@@ -846,3 +851,67 @@ Settings =
     ta.value = Conf['dhash_post_data']
     $.on ta, 'change', $.cb.value
     $.on ta, 'change', -> Conf['dhash_post_data'] = @value
+
+    btnForce = $ 'button[name="force_add"]', section
+    $.on btnForce, 'click', ->
+      return unless DHash.postData
+      DHash.forceAdd = true
+      count = 0
+      for hash, entries of DHash.postData
+        for entry in entries
+          # Look up the live post by board and post number
+          post = g.posts.get("#{entry.board}.#{entry.num}")
+          if post
+            # Find file with matching dhash
+            for file in post.files when file.dhash is hash
+              DHash.collect post, file, entry.reason_added
+              count++
+              break
+      DHash.forceAdd = false
+      DHash.saveData()
+      ta.value = Conf['dhash_post_data']
+      new Notice 'success', "Force Add Data complete. Updated #{count} entries.", 3
+
+    btnRemove = $ 'button[name="remove_page_posts"]', section
+    $.on btnRemove, 'click', ->
+      # Load data directly from Conf if DHash didn't init (e.g. Filtering off)
+      postData = DHash.postData
+      unless postData
+        try
+          postData = JSON.parse(Conf['dhash_post_data'] or '{}')
+        catch
+          postData = {}
+      
+      return if Object.keys(postData).length is 0
+      
+      count = 0
+      
+      # Build a lookup of current page posts by board.num for O(1) checking
+      pagePosts = {}
+      g.posts.forEach (post) ->
+        pagePosts["#{post.board.ID}.#{post.ID}"] = true
+      
+      # Iterate over the entire database and filter out matching entries
+      for hash, entries of postData
+        originalLen = entries.length
+        postData[hash] = entries.filter (entry) ->
+          not pagePosts["#{entry.board}.#{entry.num}"]
+        
+        if postData[hash].length < originalLen
+          count += (originalLen - postData[hash].length)
+        
+        if postData[hash].length is 0
+          delete postData[hash]
+
+      if count > 0
+        # Save directly to Conf since DHash.saveData may not work if Filter is off
+        json = JSON.stringify(postData, null, 2)
+        Conf['dhash_post_data'] = json
+        $.set 'dhash_post_data', json
+        # Update DHash.postData if it exists
+        DHash.postData = postData if DHash.postData
+        
+        ta.value = json
+        new Notice 'success', "Removed #{count} entries found on this page.", 3
+      else
+        new Notice 'info', "No entries found to remove.", 3
