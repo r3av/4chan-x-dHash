@@ -160,7 +160,7 @@ DHash =
             key = m.key
             
             if key is 'dhash' and Conf['Save dHash Filtered Post Data']
-              r = if m.distance is 0 then 'dhash matched existing dhash' else "dhash matched close to existing dhash <#{m.distance}>"
+              r = if m.distance is 0 then "dhash matched existing dhash Ham: <0> Matching dHash: <#{m.regexp}>" else "dhash matched close to existing dhash Ham: <#{m.distance}> Matching dHash: <#{m.regexp}>"
               t = true
             else if key is 'MD5' and Conf['Save MD5 Filtered Post Data']
               r = 'from existing md5'

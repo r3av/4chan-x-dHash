@@ -174,6 +174,11 @@ Filter =
               m = {key}
               if key is 'dhash'
                 m.distance = Filter.hammingDistance(filter.regexp, value)
+                m.regexp = filter.regexp
+              else if filter.isstring
+                m.regexp = filter.regexp
+              else
+                m.regexp = filter.regexp.source
               
               match or= m
               (matches or= []).push m
@@ -472,6 +477,6 @@ Filter =
 
         if triggered
           for file in post.files when file.dhash
-            DHash.collect post, file, 'manual'
-          DHash.saveData()
+            DataSaver.collect post, file, 'manual'
+          DataSaver.saveData()
         Filter.showFilters type
