@@ -392,7 +392,7 @@ Filter =
 
   menu:
     init: ->
-      return unless g.VIEW in ['index', 'thread'] and Conf['Menu'] and Conf['Filter']
+      return unless g.VIEW in ['index', 'thread'] and Conf['Menu']
 
       div = $.el 'div',
         textContent: 'Filter'
