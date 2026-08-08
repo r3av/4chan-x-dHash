@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan X with dHash
-// @version      1.14.23.2.4
+// @version      1.14.23.2.5
 // @minGMVer     1.14
 // @minFFVer     26
 // @namespace    4chan-X
@@ -210,7 +210,7 @@ docSet = function() {
 };
 
 g = {
-  VERSION:   '1.14.23.2.4',
+  VERSION:   '1.14.23.2.5',
   NAMESPACE: '4chan X with dHash.',
   sites:     Object.create(null),
   boards:    Object.create(null)

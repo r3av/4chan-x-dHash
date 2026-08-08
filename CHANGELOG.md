@@ -4,7 +4,7 @@
 
 ### v1.14.23
 
-**v1.14.23.2.4** *(2026-08-08)*  [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/master/builds/4chan-X.user.js)]
+**v1.14.23.2.5** *(2026-08-08)*  [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/master/builds/4chan-X.user.js)]
 - (r3av) **Post Data Saving**: Save and recall dHash filter data per-post, reducing redundant hashing on revisited threads.
 - (r3av) **DataSaver Refactor**: Cleaned up data persistence layer with date ordering and improved reliability.
 - (r3av) **Repository Restructure**:

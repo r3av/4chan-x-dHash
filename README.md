@@ -1,10 +1,10 @@
-# 4chan X v1.14.23.2.4 with dHash
+# 4chan X v1.14.23.2.5 with dHash
 > **Forked from [ccd0/4chan-x](https://github.com/ccd0/4chan-x)**
 
 ## 1. Overview
 This is a fork of 4chan X with dHash filtering added. The dHash feature calculates a perceptual hash called dHash for an image. This "dHash" allows users to filter duplicate images even if they have slightly different metadata, resolution, or compression, as "similar looking" images produce identical or near-identical hashes.
 
-**What's new in v1.14.23.2.4:**
+**What's new in v1.14.23.2.5:**
 - **Post Data Saving**: dHash filter data is now saved and recalled per-post, reducing redundant hashing on revisited threads.
 - **Repository Restructure**: Development and distribution are now on `master` in the `builds/` folder. Existing users migrate automatically.
 
