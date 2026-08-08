@@ -14,5 +14,7 @@ node_modules/
 /.events
 /.events2
 /dist/
-/builds/
+/builds/*
+!/builds/4chan-X.user.js
+!/builds/4chan-X.meta.js
 /test/
