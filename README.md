@@ -22,15 +22,6 @@ Use the userscript in the [/builds/](builds/) directory to install and test it o
 - Install the [4chan-X.user.js](builds/4chan-X.user.js) in Tampermonkey or Greasemonkey.
 - Import your settings from your previous 4chan X installation.
 
-## 2.a Mobile Install
-
-**Mobile Compatible**: This fork includes specific optimizations for mobile browsers, ensuring a native-like experience on smaller screens while retaining all 4chan X features.
-For iOS 26, Safari
-- Install the [Userscripts App](https://apps.apple.com/us/app/userscripts/id1463298887) on the appstore.
-- Download [4chan-X.user.js](builds/4chan-X.user.js)
-- In your Files app, move 4chan-X.user.js from your Downloads folder (or wherever you downloaded it too) to the Userscripts folder
-- In iOS Settings > Apps > General > Extensions > Set Userscripts: ON
-- In Safari, on any board, like boards.4chan.org/g/ > In the bottom next to the left of the URL bar, click on the puzzle piece, -> Manage Extensions -> enable Userscripts App.
  
 ## 3. Configuration and Usage
 To enable, go to the 4chan X settings and enable the Image dHash feature. 
