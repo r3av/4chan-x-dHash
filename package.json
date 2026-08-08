@@ -6,7 +6,7 @@
     "path": "4chan-x",
     "fork": "r3av",
     "page": "https://github.com/r3av/4chan-x-dHash/tree/master",
-    "downloads": "https://raw.githubusercontent.com/r3av/4chan-x-dHash/master/testbuilds/",
+    "downloads": "https://raw.githubusercontent.com/r3av/4chan-x-dHash/master/builds/",
     "oldVersions": "https://raw.githubusercontent.com/ccd0/4chan-x/",
     "faq": "https://github.com/ccd0/4chan-x/wiki/Frequently-Asked-Questions",
     "captchaFAQ": "https://github.com/ccd0/4chan-x/wiki/Captcha-FAQ",
