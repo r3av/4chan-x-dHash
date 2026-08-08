@@ -4,7 +4,15 @@
 
 ### v1.14.23
 
-**v1.14.23.2.3** *(2026-02-03)*  [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/feature/dHash-v1/testbuilds/4chan-X.user.js)]
+**v1.14.23.2.4** *(2026-08-08)*  [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/master/builds/4chan-X.user.js)]
+- (r3av) **Post Data Saving**: Save and recall dHash filter data per-post, reducing redundant hashing on revisited threads.
+- (r3av) **DataSaver Refactor**: Cleaned up data persistence layer with date ordering and improved reliability.
+- (r3av) **Repository Restructure**:
+    - Migrated active development and distribution from `feature/dHash-v1` branch to `master`.
+    - Moved public distribution folder from `testbuilds/` to `builds/` for a cleaner project layout.
+    - Auto-update URLs now point to `master/builds/` — existing users will migrate seamlessly.
+
+**v1.14.23.2.3** *(2026-02-03)*  [[Userscript](https://raw.githubusercontent.com/r3av/4chan-x-dHash/master/builds/4chan-X.user.js)]
 - (r3av) **Mobile Layout Overhaul**:
     - **Native Parity**: Aligned CSS with native 4chan responsive design (margins, fonts, layout).
     - **Smart File Info**: Split file size/type from filename; filename reveals on expansion to save screen space.
