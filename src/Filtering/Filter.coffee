@@ -160,7 +160,7 @@ Filter =
             (filter.excludes and  (filter.excludes[board] or filter.excludes[site])) or
             (filter.mask & mask) or
             (if key is 'dhash'
-              Filter.hammingDistance(filter.regexp, value) > 5
+              (dhashDist = Filter.hammingDistance(filter.regexp, value)) > 5
             else if filter.isstring
               filter.regexp isnt value
             else
@@ -173,7 +173,7 @@ Filter =
               
               m = {key}
               if key is 'dhash'
-                m.distance = Filter.hammingDistance(filter.regexp, value)
+                m.distance = dhashDist
                 m.regexp = filter.regexp
               else if filter.isstring
                 m.regexp = filter.regexp

@@ -2,6 +2,7 @@ DataSaver =
   postData: {}
   dataChanged: false
   forceAdd: false
+  saveTimer: null
 
   init: ->
     try
@@ -21,10 +22,14 @@ DataSaver =
        Conf['Save Filename Filtered Post Data']) and DataSaver.dataChanged
     
     # Persist the collected data
-    json = JSON.stringify(DataSaver.postData, null, 2)
+    json = JSON.stringify(DataSaver.postData)
     Conf['dhash_post_data'] = json
     $.set 'dhash_post_data', json
     DataSaver.dataChanged = false
+
+  scheduleSave: ->
+    clearTimeout DataSaver.saveTimer if DataSaver.saveTimer
+    DataSaver.saveTimer = setTimeout DataSaver.saveData, 5000
     
   collect: (post, file, reason) ->
     return unless Conf['Save Thread Data'] or 

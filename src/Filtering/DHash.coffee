@@ -5,6 +5,7 @@ DHash =
   total: 0
   filteredCount: 0
   newMD5Count: 0
+  pendingMD5s: []
 
   init: ->
     DataSaver.init()
@@ -61,12 +62,14 @@ DHash =
 
   node: ->
     return if @isClone or !Conf['Image dHash']
+    return if Conf['Thread Only dHash'] and g.VIEW isnt 'thread'
     for file in @files
       if file.thumb
         DHash.prepare @, file
 
   onPostsInserted: (e) ->
     return unless Conf['Image dHash'] and e.detail
+    return if Conf['Thread Only dHash'] and g.VIEW isnt 'thread'
     for post in e.detail
       continue if post.isClone
       for file in post.files
@@ -122,6 +125,7 @@ DHash =
        $.rmClass post.nodes.root, 'dhash-pending'
 
     try
+      delete post.filterResults
       {hide, stub, match, matches} = Filter.test post
       if hide
         DHash.filteredCount++
@@ -137,7 +141,7 @@ DHash =
                 break
           
           unless alreadyFiltered
-            Filter.addFilter 'MD5', "/#{file.MD5}/"
+            DHash.pendingMD5s.push file.MD5
             DHash.newMD5Count++
             DHash.updateStatus()
 
@@ -217,11 +221,18 @@ DHash =
     
     if DHash.queue.length
        if window.requestIdleCallback
-          window.requestIdleCallback DHash.run, { timeout: 100 }
+          window.requestIdleCallback DHash.run, { timeout: 1000 }
        else
           setTimeout DHash.run, 0
     else
-       DataSaver.saveData()
+       DHash.flushMD5s()
+       DataSaver.scheduleSave()
+
+  flushMD5s: ->
+    return unless DHash.pendingMD5s.length
+    filter = DHash.pendingMD5s.map((md5) -> "/#{md5}/").join('\n')
+    DHash.pendingMD5s = []
+    Filter.addFilter 'MD5', filter
 
   compute: ({post, file, img}) ->
     return unless img.naturalWidth # sanity check

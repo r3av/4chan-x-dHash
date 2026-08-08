@@ -221,6 +221,11 @@ Config =
         true
         'Enable dHash calculation for images.'
       ]
+      'Thread Only dHash': [
+        false
+        'Only calculate dHash inside threads, not on the index or catalog. Improves performance on boards with many threads.'
+        1
+      ]
       'Show dHash Calculation Progress': [
         false
         'Show dHash calculation progress in the header.'
@@ -273,6 +278,11 @@ Config =
       'Save Filename Filtered Post Data': [
         false
         'Save metadata ONLY when an image is automatically filtered or manually blocked via filename.'
+      ]
+      'Ping URL': [
+        ''
+        'URL to ping with the latest saved post data.'
+        1
       ]
 
     'Images and Videos':

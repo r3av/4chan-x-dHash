@@ -843,6 +843,10 @@ Settings =
           <button name="force_add">Force Add Data</button>
           <button name="remove_page_posts">Remove Page Posts</button>
           <button name="sort_by_date">Sort by Date</button>
+          <button name="ping_last_post">Ping Last Post</button>
+        </div>
+        <div>
+           <label>Ping URL: <input type="text" name="ping_url" class="field" style="width: 300px;"></label>
         </div>
         <textarea name="dhash_post_data" style="width: 100%; height: 500px; font-family: monospace; white-space: pre;"></textarea>
       </fieldset>
@@ -852,6 +856,60 @@ Settings =
     ta.value = Conf['dhash_post_data']
     $.on ta, 'change', $.cb.value
     $.on ta, 'change', -> Conf['dhash_post_data'] = @value
+
+    inpPingUrl = $ 'input[name="ping_url"]', section
+    inpPingUrl.value = Conf['Ping URL']
+    $.on inpPingUrl, 'change', $.cb.value
+    $.on inpPingUrl, 'change', -> 
+      Conf['Ping URL'] = @value
+      $.set 'Ping URL', @value
+
+    btnPing = $ 'button[name="ping_last_post"]', section
+    $.on btnPing, 'click', ->
+      url = Conf['Ping URL']
+      unless url
+        new Notice 'warning', "Please set a Ping URL first.", 3
+        return
+
+      postData = DataSaver.postData
+      unless postData
+        try
+          postData = JSON.parse(Conf['dhash_post_data'] or '{}')
+        catch
+          postData = {}
+
+      if Object.keys(postData).length is 0
+        new Notice 'warning', "No saved post data to ping.", 3
+        return
+
+      # Find latest post by timestamp
+      latestEntry = null
+      maxTimestamp = -1
+
+      for hash, entries of postData
+        for entry in entries
+           if entry.timestamp > maxTimestamp
+             maxTimestamp = entry.timestamp
+             latestEntry = entry
+      
+      unless latestEntry
+        new Notice 'warning', "Could not find a valid latest post.", 3
+        return
+
+      new Notice 'info', "Pinging #{url}...", 3
+      GM.xmlHttpRequest
+        method: "POST"
+        url: url
+        headers:
+          "Content-Type": "application/json"
+        data: JSON.stringify(latestEntry)
+        onload: (response) ->
+          if response.status >= 200 and response.status < 300
+             new Notice 'success', "Ping Success: #{response.responseText}", 5
+          else
+             new Notice 'error', "Ping Failed (#{response.status}): #{response.statusText}", 5
+        onerror: (response) ->
+          new Notice 'error', "Ping Error: #{response.statusText}", 5
 
     sortNewestFirst = true
     btnForce = $ 'button[name="force_add"]', section
