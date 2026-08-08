@@ -1,8 +1,12 @@
-# 4chan X v1.14.23.2.3 with dHash
-> **4chan X v1.14.23.2 Forked from [ccd0/4chan-x](https://github.com/ccd0/4chan-x)**
+# 4chan X v1.14.23.2.4 with dHash
+> **Forked from [ccd0/4chan-x](https://github.com/ccd0/4chan-x)**
 
 ## 1. Overview
 This is a fork of 4chan X with dHash filtering added. The dHash feature calculates a perceptual hash called dHash for an image. This "dHash" allows users to filter duplicate images even if they have slightly different metadata, resolution, or compression, as "similar looking" images produce identical or near-identical hashes.
+
+**What's new in v1.14.23.2.4:**
+- **Post Data Saving**: dHash filter data is now saved and recalled per-post, reducing redundant hashing on revisited threads.
+- **Repository Restructure**: Development and distribution are now on `master` in the `builds/` folder. Existing users migrate automatically.
 
 - **This means that if you filter an image with dHash, any future images that are similar to the original image will also be hidden _even if the md5 hash is different_.**
 
@@ -44,6 +48,7 @@ The feature is controlled by the following settings in `Config.coffee`:
 - **Show dHash Status**: Enables a persistent status indicator in the header (`dHash: On`).
 - **dHash Stats**: Enables persistent statistics in the header (`Filtered: 5 | New MD5s: 2`).
 - **Save dHash MD5s**: Automatically adds the MD5 of any image hidden by a dHash filter to the MD5 filter list.
+- **Post Data Saving**: When enabled, saves dHash results per-post so revisited threads don't need to re-hash images. Reduces bandwidth and CPU usage on repeat visits.
 
 ## 4. Caveats
 Implementing perceptual hashing introduces new background processing on thumbnails compared to standard 4chan X. To ensure a smooth experience, we utilize caching and job queues. We also specifically target the thumbnail images to minimize bandwidth usage. The calculations are essentially neglible but we want users using this feature to be aware of the fact that it does use additional processing power.
